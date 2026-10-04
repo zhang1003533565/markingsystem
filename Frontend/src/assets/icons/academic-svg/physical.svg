@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="runBody" x1="20" y1="13" x2="50" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#63a69d"/><stop offset="1" stop-color="#1e6c66"/></linearGradient>
+    <filter id="runShadow" x="0" y="0" width="64" height="64"><feDropShadow dx="0" dy="2" stdDeviation="1.2" flood-color="#0f172a" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#runShadow)" stroke="#154d49" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="43" cy="12" r="6" fill="url(#runBody)"/>
+    <path d="M35 21 25 31l10 6 5-8 8 7 6-5-12-11c-2.4-2.3-4.8-2.2-7 .8z" fill="url(#runBody)"/>
+    <path d="M30 36 20 47l-7-3-4 6 12 5 14-14z" fill="url(#runBody)"/>
+    <path d="M40 35 48 50l8-1-1 7-12 1-10-17z" fill="url(#runBody)"/>
+    <path d="M8 34h10M5 42h9" stroke="#2a7f78" stroke-width="3"/>
+  </g>
+</svg>

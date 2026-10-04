@@ -1,0 +1,94 @@
+/* ============ AI 对话日志页 ============ */
+.knowledge-logs-page {
+  padding: 20px 24px 40px;
+  max-width: 1360px;
+  margin: 0 auto;
+}
+
+.kb-logs-filter {
+  width: 150px;
+}
+
+.kb-logs-keyword {
+  width: 260px;
+}
+
+.kb-logs-total-label {
+  font-size: 12.5px;
+  color: #8a97a5;
+}
+
+.kb-logs-table-wrap {
+  background: #fff;
+  border: 1px solid #e6ebf0;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.kb-logs-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.kb-logs-table th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #fafbfc;
+  color: #6b7a8d;
+  font-weight: 600;
+  font-size: 12.5px;
+  border-bottom: 1px solid #edf1f5;
+  white-space: nowrap;
+}
+
+.kb-logs-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f3f6;
+  color: #1f2d3d;
+  vertical-align: top;
+}
+
+.kb-logs-table tr:hover td {
+  background: #fafcfe;
+}
+
+.kb-logs-cell-muted {
+  color: #8a97a5;
+  white-space: nowrap;
+}
+
+.kb-logs-cell-text {
+  display: block;
+  max-width: 340px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+.kb-logs-app-badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #e8f2ff;
+  color: #2b6cb0;
+  white-space: nowrap;
+  max-width: 130px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}
+
+.kb-logs-app-page {
+  background: #f6ffed;
+  color: #389e0d;
+}
+
+.kb-logs-pager {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}

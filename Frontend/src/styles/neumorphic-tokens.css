@@ -1,0 +1,267 @@
+/**
+ * Neumorphic Soft UI tokens + utilities
+ * Visual physics from Soft UI; palette aligned to app blue theme + Flat accents.
+ * Scope: student home (and optional shared neu-* utilities).
+ */
+
+:root {
+  /* Surface */
+  --neu-bg: #e0e5ec;
+  --neu-bg-tint: #e6ebf2;
+  --neu-fg: #1e293b;
+  --neu-muted: #64748b;
+  --neu-placeholder: #94a3b8;
+
+  /* Theme + Flat accents (vibrant, not violet-default) */
+  --neu-primary: #2563eb;
+  --neu-primary-deep: #1d4ed8;
+  --neu-primary-soft: #dbeafe;
+  --neu-secondary: #10b981;
+  --neu-secondary-soft: #d1fae5;
+  --neu-accent: #f59e0b;
+  --neu-accent-soft: #fef3c7;
+  --neu-danger: #ef4444;
+
+  /* Dual shadows (RGBA for smooth blend) */
+  --neu-shadow-dark: rgb(163 177 198 / 0.6);
+  --neu-shadow-dark-strong: rgb(163 177 198 / 0.7);
+  --neu-shadow-light: rgb(255 255 255 / 0.55);
+  --neu-shadow-light-strong: rgb(255 255 255 / 0.65);
+
+  --neu-extruded: 9px 9px 16px var(--neu-shadow-dark), -9px -9px 16px var(--neu-shadow-light);
+  --neu-extruded-hover: 12px 12px 20px var(--neu-shadow-dark-strong), -12px -12px 20px var(--neu-shadow-light-strong);
+  --neu-extruded-sm: 5px 5px 10px var(--neu-shadow-dark), -5px -5px 10px var(--neu-shadow-light);
+  --neu-inset: inset 6px 6px 10px var(--neu-shadow-dark), inset -6px -6px 10px var(--neu-shadow-light);
+  --neu-inset-deep: inset 10px 10px 20px var(--neu-shadow-dark-strong), inset -10px -10px 20px var(--neu-shadow-light-strong);
+  --neu-inset-sm: inset 3px 3px 6px var(--neu-shadow-dark), inset -3px -3px 6px var(--neu-shadow-light);
+
+  /* Primary button pressed (works on blue fill) */
+  --neu-primary-inset: inset 4px 4px 10px rgb(15 40 100 / 0.35), inset -3px -3px 8px rgb(255 255 255 / 0.25);
+
+  /* Radius */
+  --neu-radius-card: 32px;
+  --neu-radius-btn: 16px;
+  --neu-radius-inner: 12px;
+  --neu-radius-pill: 9999px;
+
+  /* Motion */
+  --neu-duration: 300ms;
+  --neu-ease: ease-out;
+
+  /* Type */
+  --neu-font-display: 'Plus Jakarta Sans', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+  --neu-font-body: 'DM Sans', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* —— Utilities —— */
+
+.neu-surface {
+  background: var(--neu-bg);
+  color: var(--neu-fg);
+}
+
+.neu-card {
+  border: none;
+  border-radius: var(--neu-radius-card);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-extruded);
+  transition:
+    transform var(--neu-duration) var(--neu-ease),
+    box-shadow var(--neu-duration) var(--neu-ease);
+}
+
+.neu-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--neu-extruded-hover);
+}
+
+.neu-well,
+.neu-inset {
+  border: none;
+  border-radius: var(--neu-radius-btn);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-inset);
+}
+
+.neu-inset-deep {
+  border: none;
+  border-radius: var(--neu-radius-btn);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-inset-deep);
+}
+
+.neu-icon-well {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+  border: none;
+  border-radius: var(--neu-radius-inner);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-inset-deep);
+  color: var(--neu-primary);
+}
+
+.neu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: var(--neu-radius-btn);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-extruded-sm);
+  color: var(--neu-fg);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    transform var(--neu-duration) var(--neu-ease),
+    box-shadow var(--neu-duration) var(--neu-ease),
+    background-color var(--neu-duration) var(--neu-ease),
+    color var(--neu-duration) var(--neu-ease);
+}
+
+.neu-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--neu-extruded-hover);
+}
+
+.neu-btn:active:not(:disabled) {
+  transform: translateY(0.5px);
+  box-shadow: var(--neu-inset-sm);
+}
+
+.neu-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--neu-extruded-sm), 0 0 0 2px var(--neu-bg), 0 0 0 4px var(--neu-primary);
+}
+
+.neu-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: var(--neu-inset-sm);
+}
+
+.neu-btn-primary {
+  background: var(--neu-primary);
+  color: #fff;
+  box-shadow:
+    6px 6px 12px rgb(37 99 235 / 0.35),
+    -4px -4px 10px rgb(255 255 255 / 0.45);
+}
+
+.neu-btn-primary:hover:not(:disabled) {
+  background: var(--neu-primary-deep);
+  box-shadow:
+    8px 8px 16px rgb(37 99 235 / 0.4),
+    -5px -5px 12px rgb(255 255 255 / 0.5);
+}
+
+.neu-btn-primary:active:not(:disabled) {
+  box-shadow: var(--neu-primary-inset);
+}
+
+.neu-btn-primary:focus-visible {
+  box-shadow:
+    6px 6px 12px rgb(37 99 235 / 0.35),
+    0 0 0 2px var(--neu-bg),
+    0 0 0 4px var(--neu-primary);
+}
+
+.neu-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--neu-radius-pill);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-inset-sm);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.neu-pill-primary {
+  color: var(--neu-primary);
+  box-shadow: var(--neu-inset-sm);
+  background: color-mix(in srgb, var(--neu-primary-soft) 70%, var(--neu-bg));
+}
+
+.neu-pill-success {
+  color: #047857;
+  background: color-mix(in srgb, var(--neu-secondary-soft) 75%, var(--neu-bg));
+}
+
+.neu-pill-accent {
+  color: #b45309;
+  background: color-mix(in srgb, var(--neu-accent-soft) 80%, var(--neu-bg));
+}
+
+.neu-input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 14px;
+  border: none;
+  border-radius: var(--neu-radius-btn);
+  background: var(--neu-bg);
+  box-shadow: var(--neu-inset);
+  color: var(--neu-fg);
+  font: inherit;
+  transition: box-shadow var(--neu-duration) var(--neu-ease);
+}
+
+.neu-input::placeholder {
+  color: var(--neu-placeholder);
+}
+
+.neu-input:focus {
+  outline: none;
+  box-shadow: var(--neu-inset-deep), 0 0 0 2px var(--neu-bg), 0 0 0 4px var(--neu-primary);
+}
+
+.neu-font-display {
+  font-family: var(--neu-font-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+@keyframes neu-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.neu-float {
+  animation: neu-float 3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neu-card,
+  .neu-btn,
+  .neu-input {
+    transition: none;
+  }
+
+  .neu-card:hover,
+  .neu-btn:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .neu-float {
+    animation: none;
+  }
+}

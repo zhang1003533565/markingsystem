@@ -1,0 +1,172 @@
+/* 图文微课内嵌阅读器 */
+.microcourse-modal .ant-modal-title {
+  font-size: 16px;
+}
+
+.microcourse-modal-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.microcourse-modal-title .anticon {
+  color: #1677ff;
+}
+
+.microcourse-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.microcourse-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f5f8ff;
+  border-left: 3px solid #1677ff;
+}
+
+.microcourse-meta-desc {
+  color: #44506b;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.microcourse-guide {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: #389e0d;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.microcourse-content {
+  padding: 4px 6px;
+  color: #1f2937;
+  font-size: 14px;
+  line-height: 1.8;
+  max-height: 52vh;
+  overflow-y: auto;
+}
+
+.microcourse-content h1 {
+  margin: 0 0 12px;
+  font-size: 20px;
+  color: #10234f;
+}
+
+.microcourse-content h2 {
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  font-size: 17px;
+  color: #10234f;
+  border-bottom: 1px solid #e8eef9;
+}
+
+.microcourse-content h3 {
+  margin: 16px 0 8px;
+  font-size: 15px;
+  color: #10234f;
+}
+
+.microcourse-content p {
+  margin: 0 0 10px;
+}
+
+.microcourse-content ul {
+  margin: 0 0 10px;
+  padding-left: 20px;
+}
+
+.microcourse-content li {
+  margin-bottom: 4px;
+}
+
+.microcourse-content code {
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #f0f2f5;
+  color: #cf1322;
+  font-size: 13px;
+}
+
+.microcourse-content strong {
+  color: #10234f;
+}
+
+.microcourse-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: #8a9ab5;
+  background: #fafbfe;
+  border-radius: 10px;
+}
+
+.microcourse-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px dashed #d8e3f2;
+}
+
+.microcourse-footer-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.microcourse-ext {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid #d9e3f2;
+  border-radius: 8px;
+  color: #1677ff;
+  font-size: 13px;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.microcourse-ext:hover {
+  background: #1677ff;
+  color: #fff;
+  border-color: #1677ff;
+}
+
+.microcourse-done-btn {
+  flex-shrink: 0;
+}
+
+.microcourse-done-tip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #f6ffed;
+  color: #389e0d;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .microcourse-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .microcourse-footer-links {
+    justify-content: center;
+  }
+
+  .microcourse-done-btn {
+    width: 100%;
+  }
+}

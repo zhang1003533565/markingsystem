@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "check": "npm run check:frontend && npm run check:backend",
+    "check:frontend": "npm --prefix Frontend run check",
+    "check:backend": "cd Backend && ./mvnw test"
+  },
+  "dependencies": {
+    "moment": "^2.30.1"
+  }
+}

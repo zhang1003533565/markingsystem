@@ -1,0 +1,827 @@
+.college-management {
+  padding: 24px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #e0f2fe 100%);
+  min-height: calc(100vh - 60px);
+}
+
+.college-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.college-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.college-btn-primary:hover {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+.college-btn-default {
+  background: #ffffff;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.college-btn-default:hover {
+  border-color: #667eea;
+  color: #667eea;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.15);
+}
+
+.college-content-panel {
+  background: rgba(234, 244, 255, 0.9);
+  border-radius: 28px;
+  padding: 28px;
+  margin-top: 24px;
+}
+
+.college-overview-card {
+  background: #ffffff;
+  padding: 24px 28px;
+  border-radius: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.college-overview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.overview-item {
+  min-width: 128px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: #f8fbff;
+  border: 1px solid #e0ecff;
+}
+
+.overview-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.overview-item strong {
+  font-size: 28px;
+  line-height: 1;
+  color: #1e293b;
+}
+
+.overview-tip {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.college-table-wrapper {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.college-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.college-table th,
+.college-table td {
+  padding: 16px 20px;
+  text-align: left;
+}
+
+.college-table th {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  font-weight: 600;
+  color: #475569;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.college-table th:nth-child(1) {
+  width: 50%;
+}
+
+.college-table th:nth-child(2) {
+  width: 18%;
+}
+
+.college-table th:nth-child(3) {
+  width: 32%;
+}
+
+.college-table tbody tr {
+  transition: all 0.3s ease;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.college-table tbody tr:nth-child(even) {
+  background: #fafbfc;
+}
+
+.college-table tbody tr:hover {
+  background: #f1f5f9;
+  transform: scale(1.002);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.college-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.college-table td {
+  color: #334155;
+  font-size: 14px;
+}
+
+.college-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.college-name-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.college-name-meta strong {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+}
+
+.college-name-meta span {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.college-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  border-radius: 12px;
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+}
+
+.college-loading-cell,
+.college-empty-cell {
+  text-align: center;
+  color: #94a3b8;
+  padding: 60px 20px !important;
+}
+
+.college-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.college-empty-text {
+  font-size: 15px;
+  color: #94a3b8;
+}
+
+.college-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.college-status-badge.active {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+}
+
+.college-status-badge.inactive {
+  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+  color: #991b1b;
+}
+
+.college-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.college-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.college-action-btn.edit {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.college-action-btn.edit:hover {
+  background: #dbeafe;
+  transform: translateY(-1px);
+}
+
+.college-action-btn.delete {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.college-action-btn.delete:hover {
+  background: #fee2e2;
+  transform: translateY(-1px);
+}
+
+.email-default-action,
+.email-default-action:disabled {
+  background: #ecfdf5;
+  color: #047857;
+  cursor: default;
+  opacity: 1;
+}
+
+.email-default-action:hover {
+  background: #ecfdf5;
+  color: #047857;
+  transform: none;
+}
+
+.college-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 1000;
+}
+
+.college-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 480px;
+  overflow: hidden;
+}
+
+.college-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.college-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.college-modal-close {
+  min-width: 48px;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 32px;
+}
+
+.college-modal-close:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.college-modal-body {
+  padding: 24px;
+}
+
+.college-form-row {
+  margin-bottom: 20px;
+}
+
+.college-form-row:last-child {
+  margin-bottom: 0;
+}
+
+.college-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.college-form-group label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.required {
+  color: #ef4444;
+}
+
+.college-form-group input,
+.college-form-group select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #f8fafc;
+  transition: all 0.3s ease;
+  color: #334155;
+  box-sizing: border-box;
+}
+
+.college-form-group input:focus,
+.college-form-group select:focus {
+  outline: none;
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.college-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 24px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* 学年名称单元格 - 防止换行 */
+.data-table td.academic-year-name {
+  white-space: nowrap;
+  min-width: 120px;
+}
+
+@media (max-width: 1024px) {
+  .college-overview-card {
+    align-items: flex-start;
+  }
+
+  .college-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .college-table {
+    min-width: 720px;
+  }
+}
+
+@media (max-width: 768px) {
+  .college-management {
+    padding: 16px;
+  }
+
+  .college-content-panel {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .college-overview-card {
+    padding: 18px;
+  }
+
+  .overview-item {
+    min-width: calc(50% - 8px);
+  }
+
+  .college-name-meta strong {
+    white-space: normal;
+  }
+
+  .college-action-btns {
+    gap: 8px;
+  }
+
+  .college-action-btn {
+    padding: 8px 12px;
+  }
+
+  .college-modal {
+    max-width: none;
+  }
+}
+
+/* 学院管理页面精简样式 */
+.college-management {
+  padding: 18px 24px 28px;
+  background: transparent;
+}
+
+.college-management .college-top-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 14px;
+}
+
+.college-management .college-content-panel {
+  margin-top: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.college-management .college-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.college-management .overview-item {
+  min-width: 0;
+  padding: 18px 20px;
+  border: 1px solid #e1e8f2;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(44, 78, 125, 0.06);
+}
+
+.college-management .overview-item strong {
+  font-size: 26px;
+}
+
+.college-management .college-table-wrapper {
+  border: 1px solid #e1e8f2;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(44, 78, 125, 0.06);
+}
+
+.college-management .college-action-btn {
+  padding: 3px 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.college-management .college-action-btn.edit,
+.college-management .college-action-btn.edit:hover {
+  color: #1677ff;
+  background: transparent;
+  transform: none;
+}
+
+.college-management .college-action-btn.delete,
+.college-management .college-action-btn.delete:hover {
+  color: #ef4444;
+  background: transparent;
+  transform: none;
+}
+
+.college-management .college-action-btn:hover {
+  text-decoration: underline;
+}
+
+.college-management .college-status-badge {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+@media (max-width: 768px) {
+  .college-management {
+    padding: 12px;
+  }
+
+  .college-management .college-overview {
+    grid-template-columns: 1fr;
+  }
+}
+input.no-spinners::-webkit-outer-spin-button,
+input.no-spinners::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input.no-spinners[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 18px;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #475467;
+}
+
+.pagination-info,
+.pagination-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pagination-info select {
+  min-width: 76px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+}
+
+.pagination-actions span {
+  min-width: 68px;
+  text-align: center;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .pagination-bar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+/* 共用列表/表单样式：用户管理、系统邮箱等仍使用 data-table / mapping-grid 等旧类名 */
+/* 学院管理本体已切到 college-*，故以下规则限定在 .college-management 内，避免污染。 */
+/* -------------------------------------------------------------------------- */
+
+.college-management .btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.college-management .btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.college-management .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+}
+
+.college-management .btn-default {
+  background: #fff;
+  color: #475569;
+  border: 2px solid #e2e8f0;
+}
+
+.college-management .btn-default:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+.college-management .btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.college-management .preview-panel {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid #e1e8f2;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(44, 78, 125, 0.06);
+}
+
+.college-management .mapping-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.college-management .form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.college-management .form-item label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.college-management .form-item input,
+.college-management .form-item select {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  font-size: 14px;
+}
+
+.college-management .form-item input:focus,
+.college-management .form-item select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.college-management .selection-summary {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.college-management .data-table-wrapper {
+  border: 1px solid #e1e8f2;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(44, 78, 125, 0.06);
+  overflow-x: auto;
+}
+
+.college-management .data-table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: collapse;
+  table-layout: auto;
+}
+
+.college-management .data-table th,
+.college-management .data-table td {
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.college-management .data-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  font-size: 13px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.college-management .data-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.college-management .data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.college-management .loading-cell,
+.college-management .empty-cell {
+  text-align: center;
+  color: #94a3b8;
+  padding: 48px 20px !important;
+  white-space: normal;
+}
+
+.college-management .action-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.college-management .btn-link {
+  padding: 3px 4px;
+  border: 0;
+  background: transparent;
+  color: #1677ff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.college-management .btn-link:hover {
+  text-decoration: underline;
+}
+
+.college-management .btn-link.danger {
+  color: #ef4444;
+}
+
+.college-management .btn-link:disabled,
+.college-management .btn-link.email-default-action:disabled {
+  cursor: default;
+  opacity: 1;
+  text-decoration: none;
+}
+
+.college-management .status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 18px;
+}
+
+.college-management .status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.college-management .status-badge.active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.college-management .status-badge.active::before {
+  background: #22c55e;
+}
+
+.college-management .status-badge.inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.college-management .status-badge.inactive::before {
+  background: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .college-management .mapping-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,214 @@
+/* 全局重置，对齐官网字体与布局 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Microsoft Yahei", "Source Han Sans CN", sans-serif;
+}
+
+/* 登录容器：全屏布局 */
+.login-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 背景：官网同款校园实景，保留阳光通透感 */
+.login-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(0, 51, 102, 0.05);
+  background-blend-mode: multiply;
+  z-index: 0;
+}
+
+/* 顶部导航栏：1:1复刻官网样式 */
+.login-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 70px;
+  background-color: #003366;
+  display: flex;
+  align-items: center;
+  padding: 0 30px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.school-logo {
+  width: 55px;
+  height: 55px;
+  margin-right: 15px;
+}
+
+.school-title h1 {
+  color: #fff;
+  font-size: 26px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.school-title p {
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.2;
+  opacity: 0.9;
+}
+
+/* 登录卡片容器：居中布局 */
+.login-form-section {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 20px;
+}
+
+/* 登录卡片：半透白、圆角、阴影，和官网风格统一 */
+.login-box {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 51, 102, 0.18);
+  padding: 40px 30px;
+  transition: transform 0.3s ease;
+}
+
+.login-box:hover {
+  transform: translateY(-5px);
+}
+
+.login-box h2 {
+  text-align: center;
+  color: #003366;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.login-desc {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* 错误提示：保留原逻辑，美化样式 */
+.error-message {
+  text-align: center;
+  color: #c8102e;
+  font-size: 14px;
+  margin-bottom: 15px;
+  padding: 8px;
+  background: rgba(200, 17, 46, 0.1);
+  border-radius: 4px;
+}
+
+/* 表单样式：简洁、正式，符合高校系统风格 */
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group label {
+  display: block;
+  color: #003366;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  width: 100%;
+  height: 45px;
+  padding: 0 15px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #003366;
+  box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1);
+}
+
+/* 登录按钮：官网主色深蓝，hover变红，和官网强调色一致 */
+.login-btn {
+  width: 100%;
+  height: 48px;
+  background-color: #003366;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #c8102e;
+}
+
+.login-btn:disabled {
+  background-color: #667899;
+  cursor: not-allowed;
+}
+
+/* 登录提示：保留原文案，美化样式 */
+.login-tips {
+  margin-top: 20px;
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+}
+
+/* 底部版权：和官网风格统一 */
+.login-footer {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.login-footer p {
+  line-height: 1.5;
+}
+
+/* 响应式适配：手机/平板完美显示 */
+@media (max-width: 768px) {
+  .login-header {
+    height: 60px;
+    padding: 0 15px;
+  }
+  .school-logo {
+    width: 45px;
+    height: 45px;
+  }
+  .school-title h1 {
+    font-size: 20px;
+  }
+  .school-title p {
+    font-size: 12px;
+  }
+  .login-box {
+    padding: 30px 20px;
+  }
+}

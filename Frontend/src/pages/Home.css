@@ -1,0 +1,227 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.home-container {
+  min-height: 100vh;
+  display: flex;
+  background: #f0f2f5;
+  width: 100%;
+}
+
+/* 右侧主内容区 */
+.main-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 60px);
+  width: 100%;
+}
+
+
+
+/* 主内容 */
+.main-content {
+  flex: 1;
+  padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.welcome-section {
+  margin-bottom: 24px;
+}
+
+.welcome-section h2 {
+  color: #333;
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+.welcome-section p {
+  color: #666;
+  font-size: 14px;
+}
+
+/* 通知栏目 */
+.notifications-section {
+  background: white;
+  padding: 20px 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.notifications-header h3 {
+  color: #333;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.notifications-header .view-all {
+  color: #1890ff;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.notifications-header .view-all:hover {
+  color: #40a9ff;
+}
+
+.notifications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 12px 16px;
+  background: #fafafa;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.notification-item:hover {
+  background: #f0f5ff;
+}
+
+.notification-dot {
+  width: 6px;
+  height: 6px;
+  background: #1890ff;
+  border-radius: 50%;
+  margin-top: 7px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.notification-content {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.notification-text {
+  color: #333;
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.notification-time {
+  color: #999;
+  font-size: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 统计区域 */
+.stats-section {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stats-section h3 {
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+  border-radius: 8px;
+  color: white;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* 快捷操作 */
+.quick-actions {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.quick-actions h3 {
+  color: #333;
+  font-size: 16px;
+  margin-bottom: 20px;
+  font-weight: 500;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.action-card {
+  padding: 20px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.action-card:hover {
+  border-color: #1890ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.15);
+}
+
+.action-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.action-title {
+  color: #666;
+  font-size: 14px;
+}
+
+/* 底部 */
+.home-footer {
+  background: white;
+  padding: 16px 24px;
+  text-align: center;
+  color: #999;
+  font-size: 13px;
+  border-top: 1px solid #e8e8e8;
+}

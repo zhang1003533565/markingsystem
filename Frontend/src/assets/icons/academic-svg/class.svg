@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="classBoard" x1="14" y1="14" x2="50" y2="44" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#244f52"/>
+      <stop offset="1" stop-color="#15393e"/>
+    </linearGradient>
+    <linearGradient id="classWood" x1="10" y1="12" x2="54" y2="55" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c08a48"/>
+      <stop offset="1" stop-color="#8a5d28"/>
+    </linearGradient>
+    <filter id="classShadow" x="0" y="0" width="64" height="64">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.3" flood-color="#0f172a" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <g filter="url(#classShadow)">
+    <rect x="10" y="13" width="44" height="32" rx="2.5" fill="url(#classWood)" stroke="#7a4d20" stroke-width="1.7"/>
+    <rect x="14" y="17" width="36" height="24" rx="1.5" fill="url(#classBoard)" stroke="#102f32" stroke-width="1.5"/>
+    <rect x="9" y="44" width="46" height="6" rx="2" fill="url(#classWood)" stroke="#7a4d20" stroke-width="1.6"/>
+    <rect x="34" y="41" width="9" height="3" rx="1.2" fill="#e9edf0"/>
+    <rect x="44" y="40.5" width="7" height="3.5" rx="1.2" fill="#cfd6dd"/>
+  </g>
+</svg>

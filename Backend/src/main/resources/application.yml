@@ -1,0 +1,158 @@
+server:
+  port: 8080
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+jwt:
+  secret: ${JWT_SECRET:}
+  expiration-hours: 8
+
+spring:
+  config:
+    import:
+      - optional:classpath:application-local.yml
+      - optional:file:./config/application-local.yml
+  application:
+    name: marking-system-backend
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+  datasource:
+    url: jdbc:mysql://localhost:3306/marking?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&useUnicode=true&allowPublicKeyRetrieval=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+  sql:
+    init:
+      mode: never
+      encoding: UTF-8
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 1
+      timeout: 2000
+
+logging:
+  level:
+    org.springframework.web: INFO
+    com.markingsystem: DEBUG
+
+ai:
+  analysis:
+    connect-timeout-ms: 3000
+    read-timeout-ms: 20000
+  chat:
+    enable: true
+    provider: deepseek
+    sync-timeout-ms: 20000
+    stream-timeout-ms: 60000
+    session-ttl-second: 86400
+    session-ttl-second-page: 2592000
+    # 悬浮球：轻量快速，无工具调用
+    floating:
+      system-prompt-template: |
+        你是建院 AI 助理，像一位靠谱的学长/学姐在聊天，不是在写报告。
+        当前用户角色：{role}，数据摘要：{summary}。
+        说话自然一点：短句优先，少用「您的专业情况 / 从成绩来看 / 建议您可以」这类分节标题，也不要堆砌条目清单。
+        需要提成绩或班级信息时，嵌进对话里顺口说出来即可；摘要里没有的信息直接说「暂无相关数据」，不要编造。
+        涉及职业规划、岗位推荐、学习路径时，默认以软件工程/互联网研发岗位为导向（后端、前端、测试、运维、算法工程等），除非用户明确询问其他方向。
+      tools-enabled: false
+    # 页面聊天：完整能力，有工具调用
+    page:
+      system-prompt-template: |
+        你是建院 AI 助理，面向高校成绩管理系统用户，像一位懂数据、语气轻松的同学在聊天。
+        当前用户角色：{role}，真实数据摘要：{summary}。
+        回复风格：自然口语、有温度，避免公文/报告腔。不要默认用「您的专业情况」「从您的近期成绩来看」「建议您可以」这类固定小标题，也不要一上来就列一长串 bullet；除非用户明确要求「列表 / 报告 / 对照表」，否则用连贯几段话把重点说清楚。
+        业务数据规则：成绩、附加分、班级、学生、用户、公告等校内具体数据，必须只基于【真实数据摘要】或工具返回回答；询问这类数据时先调用可用工具，再据此作答。摘要/工具都没有的业务数据，明确说「暂时无法查询到该数据」，不要编造数字。
+        专业知识规则：用户问概念、课程内容、算法、网络、学习路径等专业知识时，优先依据知识库检索结果或 knowledge_search 工具回答；知识库无相关内容或不足以回答时，直接用你自己的专业能力自然讲解与推荐，不要强调「知识库没有」「没法推荐」，也不要因此拒绝回答。
+        职业与岗位规则：涉及就业、岗位推荐、技术栈学习路线时，默认聚焦软件工程/互联网研发方向（Java/Go/Python 后端、前端、全栈、测试开发、DevOps、算法工程等）；不要主动推荐销售、行政、硬件产线等非软件岗位，除非用户明确要求。
+        调用工具前不要输出任何文字或计划说明，直接调用工具；最终回答一律使用中文，不要用英文或其他语言开场或过渡。
+        涉及人数、成绩、班级数、待审批数量等必须以摘要或工具返回中的数字为准。
+      tools-enabled: true
+      # 页面聊天是否启用知识库（RAG）检索注入
+      knowledge-enabled: true
+      # 长期记忆（仿 OpenClaw MEMORY.md / memory_search / memory_get）
+      memory:
+        enabled: true
+        long-term-ttl-second: 7776000   # 90 天
+        max-bullets: 30
+        max-chars: 1600
+        consolidate-threshold: 6        # 每攒够 N 条新 user 消息做一次 dreaming
+        consolidate-on-every-send: false
+  deepseek:
+    api-key: ${DEEPSEEK_API_KEY:}
+    base-url: https://api.deepseek.com
+    model: deepseek-chat
+    stream-enabled: true
+  openai:
+    api-key: ${OPENAI_API_KEY:}
+    base-url: https://api.openai.com
+    model: gpt-4o-mini
+    stream-enabled: true
+  # 知识库（RAG）向量化：OpenAI 兼容 embedding API，管理员可在"AI 知识库"页面配置并覆盖以下默认值
+  embedding:
+    api-key: ${EMBEDDING_API_KEY:${SILICONFLOW_API_KEY:}}
+    base-url: https://api.siliconflow.cn
+    model: BAAI/bge-m3
+  # 知识库（RAG）检索参数：低于相似度阈值的分段不返回（默认 0 表示不过滤，会导致无关文档也被当作"依据"展示）
+  retrieval:
+    top-k: 3
+    similarity-threshold: 0.3
+
+job-recommendation:
+  # 数据源 provider：mcp-jobs（爬虫，已废弃）或 deepseek（联网 AI 搜索）
+  provider: deepseek
+  weekly:
+    cron: 0 0 6 ? * MON
+  deepseek:
+    # 岗位推荐专用模型：deepseek-reasoner 支持联网搜索，deepseek-chat 不支持
+    model: deepseek-reasoner
+  mcp-jobs:
+    bridge-url: http://localhost:3100
+    connect-timeout-ms: 5000
+    read-timeout-ms: 120000
+
+# 岗位 AI（学习资源 / 任务卡）并发生成门控与读超时
+job-resource:
+  # 单次 DeepSeek 调用读超时（联网 + reasoner 较慢）
+  read-timeout-ms: 120000
+job-ai:
+  # 同时只允许 1 路岗位 AI，避免任务卡与学习资源互相拖垮
+  max-concurrent: 1
+  acquire-timeout-ms: 240000
+
+# 邮件配置（QQ邮箱）
+spring.mail.host: smtp.qq.com
+spring.mail.port: 465
+spring.mail.properties.mail.smtp.ssl.enable: true
+spring.mail.properties.mail.smtp.auth: true
+spring.mail.properties.mail.smtp.timeout: 5000
+
+mail:
+  rate-limit-ms: 800
+  queue:
+    capacity: 100
+    max-retained-tasks: 200
+
+tencent:
+  cos:
+    enabled: true
+    secret-id: ${COS_SECRET_ID:}
+    secret-key: ${COS_SECRET_KEY:}
+    region: ap-beijing
+    bucket: luke-1332125786
+    domain: https://luke-1332125786.cos.ap-beijing.myqcloud.com
+    prefix: marking

@@ -1,0 +1,124 @@
+/* 侧边栏 */
+.sidebar {
+  width: 220px;
+  background: #001529;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-logo {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-logo h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.sidebar-nav {
+  padding: 16px 0;
+  flex: 1;
+}
+
+/* 菜单项包装器 */
+.menu-item-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 一级菜单 */
+.nav-item {
+  padding: 14px 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s;
+  color: rgba(255, 255, 255, 0.7);
+  position: relative;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.nav-item.active {
+  background: #1890ff;
+  color: white;
+}
+
+.nav-item.has-active-child {
+  background: rgba(24, 144, 255, 0.15);
+  color: white;
+}
+
+.nav-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.nav-title {
+  flex: 1;
+}
+
+/* 箭头图标 */
+.nav-arrow {
+  font-size: 10px;
+  transition: transform 0.3s;
+  opacity: 0.7;
+}
+
+.nav-arrow.expanded {
+  transform: rotate(180deg);
+}
+
+/* 子菜单 */
+.submenu {
+  background: rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 500px;
+    opacity: 1;
+  }
+}
+
+.submenu-item {
+  padding: 12px 24px 12px 54px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 14px;
+}
+
+.submenu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+}
+
+.submenu-item.active {
+  background: rgba(24, 144, 255, 0.3);
+  color: white;
+}
+
+.submenu-icon {
+  font-size: 14px;
+  opacity: 0.8;
+}

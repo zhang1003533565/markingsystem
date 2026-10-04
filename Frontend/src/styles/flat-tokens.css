@@ -1,0 +1,108 @@
+/**
+ * Flat Design tokens — student home
+ * Zero artificial depth; hierarchy via color, scale, typography.
+ */
+
+:root {
+  --flat-bg: #ffffff;
+  --flat-page: #f3f4f6;
+  --flat-fg: #111827;
+  --flat-muted: #6b7280;
+  --flat-placeholder: #9ca3af;
+
+  --flat-primary: #3b82f6;
+  --flat-primary-deep: #2563eb;
+  --flat-primary-soft: #eff6ff;
+  --flat-secondary: #10b981;
+  --flat-secondary-soft: #ecfdf5;
+  --flat-accent: #f59e0b;
+  --flat-accent-soft: #fffbeb;
+  --flat-danger: #ef4444;
+
+  --flat-border: #e5e7eb;
+
+  --flat-radius-card: 8px;
+  --flat-radius-btn: 6px;
+  --flat-radius-inner: 6px;
+  --flat-radius-pill: 9999px;
+
+  --flat-duration: 200ms;
+  --flat-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --flat-font: 'Outfit', 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
+
+  --flat-focus-ring: 0 0 0 2px var(--flat-bg), 0 0 0 4px var(--flat-primary);
+}
+
+.flat-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: var(--flat-radius-btn);
+  background: var(--flat-page);
+  color: var(--flat-fg);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: none;
+  transition:
+    transform var(--flat-duration) var(--flat-ease),
+    background-color var(--flat-duration) var(--flat-ease),
+    color var(--flat-duration) var(--flat-ease);
+}
+
+.flat-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  background: #e5e7eb;
+}
+
+.flat-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.flat-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--flat-focus-ring);
+}
+
+.flat-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.flat-btn-primary {
+  background: var(--flat-primary);
+  color: #fff;
+}
+
+.flat-btn-primary:hover:not(:disabled) {
+  background: var(--flat-primary-deep);
+  color: #fff;
+}
+
+.flat-btn-outline {
+  border: 4px solid var(--flat-primary);
+  background: transparent;
+  color: var(--flat-primary);
+}
+
+.flat-btn-outline:hover:not(:disabled) {
+  background: var(--flat-primary);
+  color: #fff;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flat-btn {
+    transition: none;
+  }
+
+  .flat-btn:hover:not(:disabled) {
+    transform: none;
+  }
+}

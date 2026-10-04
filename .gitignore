@@ -1,0 +1,24 @@
+# IDE 配置
+.idea/
+
+# 启动脚本文件（本地使用）
+start-backend.bat
+start-frontend.bat
+node_modules/
+
+# Local secrets / machine-specific Spring Boot overrides
+Backend/src/main/resources/application-local.yml
+Backend/config/application-local.yml
+
+# ---- Ignore files below (personal cache / IDE / agent caches) ----
+# IDE personal config & database inspection caches
+.idea/
+
+# Agent tool caches
+.dsh-uploads/
+.understand-anything/
+.qwen/
+.vscode/
+
+# Experiment / POC scratch dir
+_poc_dir/

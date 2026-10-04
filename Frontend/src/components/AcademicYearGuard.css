@@ -1,0 +1,23 @@
+.academic-year-guard-loading,
+.academic-year-guard-notice {
+  width: 100%;
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border: 1px solid #dce8f7;
+  border-radius: 8px;
+  box-shadow: 0 8px 22px rgba(31, 57, 96, 0.08);
+}
+
+.academic-year-guard-loading {
+  gap: 12px;
+  color: #47627f;
+  font-size: 15px;
+}
+
+.student-home-main > .academic-year-guard-loading,
+.student-home-main > .academic-year-guard-notice {
+  min-height: 420px;
+}

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="docPage" x1="16" y1="8" x2="48" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#dfe5ec"/></linearGradient>
+    <linearGradient id="uploadBadge" x1="34" y1="36" x2="53" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#5c91bb"/><stop offset="1" stop-color="#24658e"/></linearGradient>
+    <filter id="importShadow" x="0" y="0" width="64" height="64"><feDropShadow dx="0" dy="2" stdDeviation="1.3" flood-color="#0f172a" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#importShadow)">
+    <path d="M17 7h23l9 9v39a3 3 0 0 1-3 3H17a3 3 0 0 1-3-3V10a3 3 0 0 1 3-3z" fill="url(#docPage)" stroke="#aab4bf" stroke-width="1.5"/>
+    <path d="M40 7v10h9" fill="#c7d0da" stroke="#aab4bf" stroke-width="1.3"/>
+    <g stroke="#9aa4af" stroke-width="2.2" stroke-linecap="round">
+      <path d="M22 27h17M22 35h17M22 43h12"/>
+    </g>
+    <circle cx="44" cy="47" r="11" fill="url(#uploadBadge)" stroke="#174d70" stroke-width="1.5"/>
+    <path d="M44 53V41M39 46l5-5 5 5" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

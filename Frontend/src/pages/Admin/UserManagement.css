@@ -1,0 +1,89 @@
+.user-management {
+  background: transparent;
+}
+
+.user-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.user-stat-card {
+  min-height: 88px;
+  padding: 18px 20px;
+  border: 1px solid #e1e8f2;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(44, 78, 125, 0.06);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.user-stat-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.user-stat-card strong {
+  display: block;
+  color: #1e293b;
+  font-size: 26px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.user-management .preview-panel {
+  margin-bottom: 16px;
+  padding: 16px 18px;
+  border: 1px solid #e1e8f2;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(44, 78, 125, 0.06);
+}
+
+.user-management .data-table-wrapper {
+  border: 1px solid #e1e8f2;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 4px 14px rgba(44, 78, 125, 0.06);
+  overflow-x: auto;
+}
+
+.user-management .data-table {
+  min-width: 1080px;
+}
+
+.user-management .status-badge {
+  gap: 0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.user-management .status-badge::before {
+  display: none;
+}
+
+.user-management .btn-link {
+  padding: 3px 4px;
+  border: 0;
+  background: transparent;
+  color: #1677ff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.user-management .btn-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .user-summary {
+    grid-template-columns: 1fr;
+  }
+}

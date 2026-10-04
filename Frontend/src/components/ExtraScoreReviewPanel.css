@@ -1,0 +1,673 @@
+.extra-score-review {
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  min-height: calc(100vh - 60px);
+}
+
+/* 筛选卡片 */
+.review-filter-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.review-filter-card .ant-card-body {
+  padding: 24px;
+}
+
+.review-topbar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: end;
+}
+
+/* 筛选区域 */
+.review-filters {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.filter-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-label svg,
+.filter-label .app-icon {
+  width: 14px;
+  height: 14px;
+  color: #64748b;
+}
+
+.filter-select {
+  padding: 10px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #334155;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+
+.filter-select:hover {
+  border-color: #cbd5e1;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.review-summary-strip {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.summary-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  min-height: 42px;
+}
+
+.summary-chip strong {
+  font-size: 18px;
+  line-height: 1;
+  color: #0f172a;
+}
+
+.summary-label,
+.summary-unit {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.summary-chip.total {
+  border-color: #cbd5e1;
+}
+
+.summary-chip.pending {
+  border-color: #fde68a;
+  background: #fffbeb;
+}
+
+.summary-chip.pending strong {
+  color: #d97706;
+}
+
+.summary-chip.approved {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+}
+
+.summary-chip.approved strong {
+  color: #16a34a;
+}
+
+.summary-chip.returned {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.summary-chip.returned strong {
+  color: #2563eb;
+}
+
+.review-hint-inline {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+.review-quick-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* 表格卡片 */
+.review-table-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.review-table-card .ant-card-head {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+  padding: 16px 24px;
+}
+
+.review-table-card .ant-card-head-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #1e293b;
+}
+
+.review-table-card .ant-card-body {
+  padding: 0;
+}
+
+.review-table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eef2f7;
+  background: #fbfdff;
+}
+
+.review-batch-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.review-batch-btn {
+  min-width: 110px;
+  border-radius: 10px !important;
+  font-weight: 600;
+  box-shadow: none !important;
+}
+
+.review-batch-btn.approve:not(:disabled) {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border-color: #2563eb !important;
+}
+
+.review-batch-btn.return:not(:disabled) {
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #dc2626 !important;
+}
+
+.review-batch-btn.neutral:not(:disabled) {
+  background: #ffffff !important;
+  border-color: #dbe4f0 !important;
+  color: #475569 !important;
+}
+
+.review-selection-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #2563eb !important;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.extra-score-review .action-btns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.extra-score-review .btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: #165dff;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.extra-score-review .btn-link:hover {
+  color: #0e4fd9;
+  text-decoration: underline;
+}
+
+.review-withdrawal-actions {
+  display: inline-flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.review-action-hint {
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: normal;
+}
+
+.review-checkbox-hint {
+  display: inline-flex;
+}
+
+.proof-image-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.proof-image-links a {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.review-proof-thumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+}
+
+.review-proof-thumb {
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.review-proof-video {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid #c4b5fd;
+  background: #f5f3ff;
+  color: #6d28d9;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.committee-review-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  min-width: 150px;
+}
+
+.committee-review-summary-tag {
+  margin-inline-end: 0;
+  border-radius: 999px;
+  font-weight: 700;
+  line-height: 22px;
+}
+
+.committee-review-summary-detail {
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.committee-review-summary.approved .committee-review-summary-tag {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.committee-review-summary.returned .committee-review-summary-tag,
+.committee-review-summary.mixed .committee-review-summary-tag {
+  border-color: #fecdd3;
+  background: #fff1f2;
+  color: #be123c;
+}
+
+.committee-review-summary.partial .committee-review-summary-tag {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.committee-review-summary.pending .committee-review-summary-tag {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #b45309;
+}
+
+/* 表格样式 */
+.review-table-card .ant-table-thead > tr > th {
+  background: #fafafa;
+  font-weight: 600;
+  color: #475569;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 14px 16px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.review-table-card .ant-table-tbody > tr {
+  transition: all 0.2s ease;
+}
+
+.review-table-card .ant-table-tbody > tr:hover > td {
+  background: #f8fafc !important;
+}
+
+.review-table-card .ant-table-tbody > tr > td {
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* 抽屉样式 */
+.review-drawer .ant-drawer-header {
+  background: linear-gradient(135deg, #eef6ff 0%, #fff7ed 100%);
+  border-bottom: none;
+  padding: 20px 24px;
+}
+
+.review-drawer .ant-drawer-title {
+  font-weight: 600;
+  font-size: 18px;
+  color: #1e293b;
+}
+
+.review-drawer .ant-drawer-close {
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-drawer .ant-drawer-body {
+  padding: 24px;
+  background: #fafbfc;
+}
+
+.review-drawer .ant-descriptions-item-label {
+  font-weight: 600;
+  color: #475569;
+}
+
+/* 模态框样式 */
+.review-modal .ant-modal-header {
+  background: linear-gradient(135deg, #eef6ff 0%, #fff7ed 100%);
+  border-bottom: none;
+  padding: 20px 24px;
+}
+
+.review-modal .ant-modal-title {
+  font-weight: 600;
+  font-size: 18px;
+  color: #1e293b;
+}
+
+.review-modal .ant-modal-body {
+  padding: 24px;
+}
+
+.review-modal .ant-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* 按钮样式增强 */
+.review-action-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.review-action-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* 空状态 */
+.review-empty {
+  padding: 72px 20px;
+}
+
+.review-empty .ant-empty-description {
+  color: #94a3b8;
+  font-size: 15px;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .extra-score-review {
+    padding: 16px;
+  }
+
+  .review-topbar {
+    grid-template-columns: 1fr;
+  }
+
+  .review-filters {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100%;
+  }
+
+  .review-summary-strip {
+    justify-content: flex-start;
+  }
+
+  .review-table-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .review-selection-status {
+    justify-content: center;
+  }
+}
+
+/* ============================================================
+   表格卡片
+   ============================================================ */
+.review-table-card .ant-card-body {
+  padding: 0;
+}
+
+.review-table-card .ant-table {
+  border-radius: 0;
+}
+
+.review-table-card .ant-table-thead > tr > th {
+  background: #fafbfc;
+  font-weight: 600;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.review-table-card .ant-table-tbody > tr:hover > td {
+  background: #f8f9fc;
+}
+
+.review-empty {
+  padding: 60px 0;
+}
+
+/* ============================================================
+   班级卡片网格（第一层）
+   ============================================================ */
+.review-class-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 24px;
+}
+
+.review-class-card {
+  background: #fff;
+  border: 1px solid #e8eaed;
+  border-radius: 16px;
+  padding: 22px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.review-class-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.review-class-card:hover {
+  border-color: rgba(99, 102, 241, 0.25);
+  box-shadow: 0 8px 28px rgba(99, 102, 241, 0.1);
+  transform: translateY(-3px);
+}
+
+.review-class-card:hover::before {
+  opacity: 1;
+}
+
+.review-class-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.review-class-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #1e293b;
+  letter-spacing: 0.2px;
+}
+
+.review-class-student-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: #6366f1;
+  background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+  padding: 4px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(99, 102, 241, 0.08);
+}
+
+.review-class-card-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.review-class-stat {
+  text-align: center;
+  padding: 8px 4px;
+  background: #fafbfc;
+  border-radius: 10px;
+}
+
+.review-class-stat-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 800;
+  color: #334155;
+  line-height: 1.2;
+}
+
+.review-class-stat-label {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 3px;
+  font-weight: 500;
+}
+
+.review-class-stat.pending .review-class-stat-value {
+  color: #d97706;
+}
+
+.review-class-stat.approved .review-class-stat-value {
+  color: #16a34a;
+}
+
+.review-class-stat.returned .review-class-stat-value {
+  color: #dc2626;
+}
+
+.review-class-card-pending {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.review-pending-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 10px;
+  letter-spacing: 0.2px;
+}
+
+.review-pending-tag.committee {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #92400e;
+}
+
+.review-pending-tag.teacher {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+}
+
+.review-class-card-footer {
+  font-size: 12px;
+  color: #6366f1;
+  font-weight: 600;
+  text-align: right;
+  padding-top: 14px;
+  border-top: 1px solid #f1f5f9;
+  letter-spacing: 0.3px;
+}
+
+@media (max-width: 768px) {
+  .review-class-grid {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .review-class-card-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

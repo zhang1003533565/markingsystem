@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="megRed" x1="14" y1="24" x2="51" y2="48" gradientUnits="userSpaceOnUse"><stop stop-color="#e26458"/><stop offset="1" stop-color="#a8302b"/></linearGradient>
+    <linearGradient id="megWhite" x1="24" y1="19" x2="45" y2="43" gradientUnits="userSpaceOnUse"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#dde3e8"/></linearGradient>
+    <filter id="megShadow" x="0" y="0" width="64" height="64"><feDropShadow dx="0" dy="2" stdDeviation="1.4" flood-color="#0f172a" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#megShadow)" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 39 38 25v22L16 43z" fill="url(#megWhite)" stroke="#b8c0c8" stroke-width="1.6"/>
+    <path d="M10 38c0-5 3-8.5 7-8.5v18c-4 0-7-4-7-9.5z" fill="url(#megRed)" stroke="#8d2423" stroke-width="1.6"/>
+    <path d="M38 24c8 0 12 5.2 12 12s-4 12-12 12z" fill="url(#megRed)" stroke="#8d2423" stroke-width="1.7"/>
+    <path d="M18 45 25 56c1.1 1.8 4.2.7 3.7-1.5L26 44z" fill="url(#megRed)" stroke="#8d2423" stroke-width="1.5"/>
+    <path d="M53 28l6-4M55 37h6M53 46l6 4" fill="none" stroke="#d34238" stroke-width="3.5"/>
+  </g>
+</svg>

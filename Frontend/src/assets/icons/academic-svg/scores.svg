@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="scoreBlue" x1="14" y1="29" x2="23" y2="54" gradientUnits="userSpaceOnUse"><stop stop-color="#4a75ad"/><stop offset="1" stop-color="#244e83"/></linearGradient>
+    <linearGradient id="scoreTeal" x1="28" y1="21" x2="37" y2="54" gradientUnits="userSpaceOnUse"><stop stop-color="#6aa48c"/><stop offset="1" stop-color="#2f6d60"/></linearGradient>
+    <linearGradient id="scoreGold" x1="42" y1="13" x2="51" y2="54" gradientUnits="userSpaceOnUse"><stop stop-color="#f3ca64"/><stop offset="1" stop-color="#c8912c"/></linearGradient>
+    <filter id="scoreShadow" x="0" y="0" width="64" height="64"><feDropShadow dx="0" dy="2" stdDeviation="1.2" flood-color="#0f172a" flood-opacity=".22"/></filter>
+  </defs>
+  <g filter="url(#scoreShadow)" stroke-linejoin="round">
+    <rect x="13" y="34" width="10" height="19" rx="2" fill="url(#scoreBlue)" stroke="#173b65" stroke-width="1.5"/>
+    <rect x="27" y="25" width="10" height="28" rx="2" fill="url(#scoreTeal)" stroke="#285d51" stroke-width="1.5"/>
+    <rect x="41" y="16" width="10" height="37" rx="2" fill="url(#scoreGold)" stroke="#95691e" stroke-width="1.5"/>
+    <rect x="9" y="53" width="46" height="4" rx="2" fill="#566578" stroke="#344254" stroke-width="1.2"/>
+  </g>
+</svg>

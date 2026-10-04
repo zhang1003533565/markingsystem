@@ -1,0 +1,136 @@
+.extra-process-shell .ant-card-body {
+  padding: 22px 24px 26px;
+}
+
+.extra-process-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 18px;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  background: #f8fbff;
+}
+
+.extra-process-eyebrow {
+  display: block;
+  margin-bottom: 6px;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.extra-process-title {
+  margin: 0 0 8px !important;
+  color: #111827 !important;
+}
+
+.extra-process-main-tag {
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.extra-process-current-card {
+  margin-top: 16px;
+  border-color: #dbeafe;
+}
+
+.extra-process-current-head,
+.extra-process-action,
+.extra-process-section-head,
+.extra-process-history-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.extra-process-current-head {
+  margin-bottom: 14px;
+}
+
+.extra-process-action {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.extra-process-muted {
+  margin-top: 4px;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.extra-process-section {
+  margin-top: 20px;
+}
+
+.extra-process-section-head {
+  margin-bottom: 10px;
+}
+
+.extra-process-section-head h4 {
+  margin: 0 !important;
+  color: #111827;
+}
+
+.extra-process-history-list {
+  display: grid;
+  gap: 10px;
+}
+
+.extra-process-history-row {
+  min-height: 74px;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.extra-process-history-count {
+  flex: 1;
+  color: #475569;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.extra-process-import-row {
+  background: #fbfffb;
+}
+
+.extra-process-empty {
+  display: grid;
+  min-height: 180px;
+  place-items: center;
+  border: 1px dashed #d7dde8;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.extra-process-empty.compact {
+  min-height: 128px;
+}
+
+@media (max-width: 768px) {
+  .extra-process-shell .ant-card-body {
+    padding: 16px;
+  }
+
+  .extra-process-hero,
+  .extra-process-current-head,
+  .extra-process-action,
+  .extra-process-section-head,
+  .extra-process-history-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .extra-process-history-count {
+    width: 100%;
+  }
+}

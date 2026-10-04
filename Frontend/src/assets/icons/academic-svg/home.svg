@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="homeRoof" x1="12" y1="10" x2="52" y2="38" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#315a8c"/>
+      <stop offset="1" stop-color="#17395f"/>
+    </linearGradient>
+    <linearGradient id="homeWall" x1="20" y1="24" x2="44" y2="57" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#e6edf4"/>
+    </linearGradient>
+    <filter id="homeShadow" x="0" y="0" width="64" height="64">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.4" flood-color="#0f172a" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <g filter="url(#homeShadow)">
+    <path d="M15 30 32 15l17 15v26H15z" fill="url(#homeWall)" stroke="#b8c3cf" stroke-width="1.8"/>
+    <path d="M9 31 32 10l23 21-4.2 4.7L32 18.6 13.2 35.7z" fill="url(#homeRoof)" stroke="#102f52" stroke-width="1.7" stroke-linejoin="round"/>
+    <rect x="24" y="38" width="9" height="18" rx="1.8" fill="#1f65a6" stroke="#143f69" stroke-width="1.7"/>
+    <rect x="38" y="35" width="8" height="8" rx="1.4" fill="#254b67" stroke="#173044" stroke-width="1.5"/>
+    <rect x="12" y="55" width="40" height="3" rx="1.5" fill="#9aa7b5"/>
+    <circle cx="30.8" cy="47" r="1.1" fill="#c7d0d9"/>
+  </g>
+</svg>

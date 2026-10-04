@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="medalGold" x1="12" y1="20" x2="47" y2="58" gradientUnits="userSpaceOnUse"><stop stop-color="#ffe08a"/><stop offset=".55" stop-color="#e3ad3f"/><stop offset="1" stop-color="#b77b22"/></linearGradient>
+    <linearGradient id="medalRed" x1="18" y1="7" x2="33" y2="27" gradientUnits="userSpaceOnUse"><stop stop-color="#d76b5d"/><stop offset="1" stop-color="#9e302e"/></linearGradient>
+    <filter id="medalShadow" x="0" y="0" width="64" height="64"><feDropShadow dx="0" dy="2" stdDeviation="1.3" flood-color="#0f172a" flood-opacity=".24"/></filter>
+  </defs>
+  <g filter="url(#medalShadow)">
+    <path d="M17 8h12l3 18H20z" fill="url(#medalRed)" stroke="#8f2727" stroke-width="1.4"/>
+    <path d="M29 8h12L37 27H26z" fill="#c85045" stroke="#8f2727" stroke-width="1.4"/>
+    <circle cx="27" cy="38" r="17" fill="url(#medalGold)" stroke="#9a681d" stroke-width="1.7"/>
+    <circle cx="27" cy="38" r="12" fill="#f5cb68" stroke="#b77b22" stroke-width="1.2"/>
+    <path d="m27 28 3 6 6.5 1-4.8 4.6 1.2 6.5-5.9-3.1-5.8 3.1 1.1-6.5-4.7-4.6 6.5-1z" fill="#fff2b8" stroke="#c58f2d" stroke-width="1"/>
+    <circle cx="45" cy="45" r="9" fill="#b8872b" stroke="#73521d" stroke-width="1.5"/>
+    <path d="M45 39v12M39 45h12" stroke="#fff2b8" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

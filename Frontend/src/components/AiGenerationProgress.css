@@ -1,0 +1,49 @@
+.ai-gen-progress {
+  width: min(420px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: center;
+}
+
+.ai-gen-progress--inline {
+  width: 100%;
+  max-width: none;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid #d9e2ef;
+  border-radius: 8px;
+  background: #f7fafc;
+  text-align: left;
+  gap: 10px;
+}
+
+.ai-gen-progress-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ai-gen-progress-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.ai-gen-progress-stage {
+  margin: 0;
+  font-size: 13px;
+  color: #1677ff;
+}
+
+.ai-gen-progress-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #8a9ab5;
+}
+
+.ai-gen-progress .ant-progress {
+  margin-bottom: 0;
+}

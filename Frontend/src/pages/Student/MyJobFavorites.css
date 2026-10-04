@@ -1,0 +1,333 @@
+/* ==========================================================================
+   我的收藏 My Favorites — 硬波普 · 漫画蓝白（对齐 GrowthPath）
+   ========================================================================== */
+
+.myfav-page {
+  --myfav-ink: #0d2b47;
+  --myfav-ink-soft: #31506e;
+  --myfav-mut: #5a7c9c;
+  --myfav-line: #c9e0f9;
+  --myfav-blue: #158FED;
+  --myfav-cream: #f0f7ff;
+  --myfav-paper: #ffffff;
+
+  min-height: 100%;
+  color: var(--myfav-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.myfav-hero {
+  margin: 0 0 24px;
+  border: 2px solid var(--myfav-ink);
+  border-radius: 2px;
+  background:
+    radial-gradient(rgba(21, 143, 237, 0.16) 1.1px, transparent 1.3px),
+    var(--myfav-paper);
+  background-size: 7px 7px, auto;
+  box-shadow: 6px 6px 0 var(--myfav-ink);
+  overflow: hidden;
+}
+
+.myfav-hero-content {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.myfav-hero-text {
+  flex: 1 1 420px;
+  padding: 26px 28px;
+}
+
+.myfav-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--myfav-blue);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.myfav-title {
+  font-size: 34px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+  line-height: 0.98;
+  color: var(--myfav-ink);
+}
+
+.myfav-subtitle {
+  font-size: 14px;
+  color: var(--myfav-ink-soft);
+  margin: 0;
+  line-height: 1.75;
+  max-width: 620px;
+}
+
+.myfav-hero-actions {
+  flex: 0 0 auto;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  border-left: 2px solid var(--myfav-ink);
+  background: var(--myfav-blue);
+}
+
+.myfav-count {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: transparent;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  text-transform: uppercase;
+}
+
+.myfav-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.myfav-empty {
+  text-align: center;
+  padding: 48px 20px;
+  max-width: 420px;
+  margin: 0 auto;
+  border: 1.5px solid var(--myfav-ink);
+  border-radius: 2px;
+  background: var(--myfav-paper);
+  box-shadow: 4px 4px 0 var(--myfav-ink);
+}
+
+.myfav-empty-hint {
+  color: var(--myfav-mut);
+  font-size: 14px;
+  margin-top: 12px;
+  line-height: 1.6;
+}
+
+.myfav-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 0 40px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.myfav-card {
+  background: var(--myfav-paper);
+  border: 1.5px solid var(--myfav-ink);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 4px 4px 0 var(--myfav-ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.myfav-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--myfav-ink);
+}
+
+.myfav-card-body {
+  padding: 18px;
+}
+
+.myfav-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--myfav-ink);
+}
+
+.myfav-job-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--myfav-ink);
+  margin: 0;
+  flex: 1;
+  line-height: 1.3;
+}
+
+.myfav-fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.myfav-fav-btn:hover {
+  transform: scale(1.1);
+}
+
+.myfav-salary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 2px;
+  border: 1.5px solid var(--myfav-ink);
+  background: var(--myfav-cream);
+  color: var(--myfav-blue);
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 12px;
+  width: fit-content;
+}
+
+.myfav-skills {
+  margin-bottom: 12px;
+}
+
+.myfav-skills-icon {
+  color: var(--myfav-mut);
+  font-size: 12px;
+  margin-right: 4px;
+}
+
+.myfav-skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.myfav-progress {
+  margin: 4px 0 12px;
+}
+
+.myfav-progress-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+  color: var(--myfav-ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.myfav-progress-label em {
+  color: var(--myfav-mut);
+  font-style: normal;
+}
+
+.myfav-add-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 220px;
+  padding: 24px;
+  border: 2px dashed var(--myfav-ink);
+  border-radius: 2px;
+  background: var(--myfav-cream);
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.myfav-add-card:hover {
+  background: var(--myfav-paper);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--myfav-ink);
+}
+
+.myfav-add-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 2px;
+  border: 1.5px solid var(--myfav-ink);
+  background: var(--myfav-blue);
+  color: #fff;
+  font-size: 20px;
+  box-shadow: 3px 3px 0 var(--myfav-ink);
+}
+
+.myfav-add-card strong {
+  color: var(--myfav-ink);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.myfav-add-card em {
+  color: var(--myfav-mut);
+  font-size: 12px;
+  font-style: normal;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.myfav-add-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  padding: 7px 16px;
+  border-radius: 2px;
+  border: 1.5px solid var(--myfav-ink);
+  background: var(--myfav-blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 3px 3px 0 var(--myfav-ink);
+}
+
+.myfav-card-footer {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1.5px solid var(--myfav-line);
+}
+
+.myfav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--myfav-blue);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.myfav-link:hover {
+  color: #0f6fc0;
+  text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .myfav-hero-actions {
+    width: 100%;
+    border-left: none;
+    border-top: 2px solid var(--myfav-ink);
+    padding: 14px 22px;
+  }
+
+  .myfav-title {
+    font-size: 28px;
+  }
+
+  .myfav-grid {
+    grid-template-columns: 1fr;
+  }
+}

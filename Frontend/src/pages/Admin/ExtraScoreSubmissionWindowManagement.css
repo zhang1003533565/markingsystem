@@ -1,0 +1,115 @@
+.extra-score-submission-window-page {
+  gap: 18px !important;
+  position: relative;
+  font-size: 13px;
+}
+
+.extra-score-submission-window-page > .ant-card {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e5edf8;
+  border-radius: 20px !important;
+  box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.extra-score-submission-window-page > .ant-card:first-child {
+  display: none;
+}
+
+.extra-score-submission-window-page > .ant-card:nth-child(2) {
+  background: transparent;
+}
+
+.extra-score-submission-window-page .ant-select {
+  display: flex !important;
+  flex-direction: row;
+  flex-wrap: nowrap !important;
+  align-items: center;
+}
+
+.extra-score-submission-window-page .ant-select-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex !important;
+  align-items: center;
+}
+
+.extra-score-submission-window-page .ant-select-selection-item,
+.extra-score-submission-window-page .ant-select-selection-placeholder {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.extra-score-submission-window-page .ant-select-suffix {
+  display: inline-flex !important;
+  flex: 0 0 auto;
+  align-self: center;
+  margin-inline-start: auto;
+}
+
+.extra-score-submission-window-page > .ant-card .ant-card-body {
+  padding: 24px;
+}
+
+.extra-score-submission-window-page > .ant-card:last-child .ant-card-head {
+  min-height: 58px;
+  padding: 0 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.extra-score-submission-window-page > .ant-card:last-child .ant-card-head-title {
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.extra-score-submission-window-page > .ant-card:last-child .ant-card-body {
+  padding: 0;
+}
+
+.extra-score-submission-window-page > .ant-card:last-child .ant-table-content {
+  background: linear-gradient(
+    to bottom,
+    #fafbfc 0,
+    #fafbfc 55px,
+    #ffffff 55px,
+    #ffffff 100%
+  );
+}
+
+.extra-score-submission-window-page > .ant-card:last-child .ant-table-content table {
+  width: 100% !important;
+  min-width: 1100px !important;
+}
+
+.extra-score-submission-window-page > .ant-card:last-child .ant-table-thead > tr > th {
+  background: #fafbfc;
+}
+
+.extra-score-submission-window-page > .ant-card:last-child .ant-table-tbody > tr,
+.extra-score-submission-window-page > .ant-card:last-child .ant-table-tbody > tr > td {
+  transition: none !important;
+}
+
+.extra-score-submission-window-page > .ant-card:last-child .ant-table-tbody > tr:hover > td {
+  background: #ffffff !important;
+}
+
+@media (max-width: 768px) {
+  .extra-score-submission-window-page {
+    gap: 14px !important;
+  }
+
+  .extra-score-submission-window-page > .ant-card {
+    border-radius: 16px !important;
+  }
+
+  .extra-score-submission-window-page > .ant-card .ant-card-body {
+    padding: 18px;
+  }
+
+  .extra-score-submission-window-page > .ant-card:last-child .ant-card-body {
+    padding: 0;
+  }
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="cardBody" x1="10" y1="16" x2="54" y2="53" gradientUnits="userSpaceOnUse"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#dfe6ee"/></linearGradient>
+    <linearGradient id="cardHead" x1="10" y1="12" x2="54" y2="23" gradientUnits="userSpaceOnUse"><stop stop-color="#4375ad"/><stop offset="1" stop-color="#1f4f86"/></linearGradient>
+    <linearGradient id="cardUser" x1="16" y1="29" x2="31" y2="48" gradientUnits="userSpaceOnUse"><stop stop-color="#4d7bb4"/><stop offset="1" stop-color="#28588d"/></linearGradient>
+    <filter id="profileShadow" x="0" y="0" width="64" height="64"><feDropShadow dx="0" dy="2" stdDeviation="1.2" flood-color="#0f172a" flood-opacity=".2"/></filter>
+  </defs>
+  <g filter="url(#profileShadow)">
+    <rect x="9" y="14" width="46" height="36" rx="5" fill="url(#cardBody)" stroke="#aeb8c4" stroke-width="1.5"/>
+    <path d="M14 14h36a5 5 0 0 1 5 5v7H9v-7a5 5 0 0 1 5-5z" fill="url(#cardHead)" stroke="#1d406a" stroke-width="1.5"/>
+    <circle cx="23" cy="34" r="6" fill="url(#cardUser)" stroke="#1e4a77" stroke-width="1.5"/>
+    <path d="M13 47c1.2-6.8 5-10.5 10-10.5S31.8 40.2 33 47z" fill="url(#cardUser)" stroke="#1e4a77" stroke-width="1.5"/>
+    <g stroke="#9ca7b2" stroke-width="2.2" stroke-linecap="round">
+      <path d="M38 33h11M38 40h9"/>
+    </g>
+    <rect x="39" y="45" width="10" height="2.8" rx="1.4" fill="#2d67a3"/>
+  </g>
+</svg>

@@ -1,0 +1,286 @@
+.student-home-page {
+  font-size: 16px;
+}
+
+.student-home-page :where(
+  .ant-btn,
+  .ant-input,
+  .ant-input-number,
+  .ant-input-number-input,
+  .ant-select-selector,
+  .ant-select-selection-item,
+  .ant-select-item-option-content,
+  .ant-picker,
+  .ant-form-item,
+  .ant-form-item-label > label,
+  .ant-descriptions-item-label,
+  .ant-descriptions-item-content,
+  .ant-table,
+  .ant-table-cell,
+  .ant-pagination,
+  .ant-modal,
+  .ant-drawer,
+  .ant-steps-item-title,
+  .ant-steps-item-description
+) {
+  font-size: 16px !important;
+}
+
+.student-home-page :where(.ant-tag, .ant-badge-count, .ant-empty-description) {
+  font-size: 14px !important;
+}
+
+.student-home-page :where(
+  .scores-filter-label,
+  .scores-select,
+  .scores-tab,
+  .scores-alert,
+  .scores-card-title,
+  .scores-subject-label,
+  .scores-dashboard-link,
+  .scores-dashboard-empty,
+  .scores-filter-label-modern,
+  .scores-select,
+  .scores-chip,
+  .scores-export-btn,
+  .scores-refresh-btn,
+  .scores-rank-name,
+  .scores-rank-class,
+  .scores-rank-score,
+  .scores-overview-label,
+  .scores-tab,
+  .extra-score-window-title,
+  .extra-score-window-deadline,
+  .extra-score-window-status,
+  .extra-score-template-title,
+  .extra-score-template-heading,
+  .extra-score-configured-title,
+  .extra-score-rule-name,
+  .extra-score-empty-title,
+  .extra-score-submit-row,
+  .extra-score-detail-title,
+  .extra-score-timeline-title
+) {
+  font-size: 16px !important;
+}
+
+.student-home-page :where(
+  .scores-page-breadcrumb,
+  .scores-scope-secondary,
+  .scores-stat-desc,
+  .scores-subject-detail,
+  .scores-tag,
+  .scores-chip-label,
+  .scores-student-facts,
+  .scores-filter-label,
+  .scores-filter-tip,
+  .scores-rank-meta,
+  .scores-rank-tag,
+  .extra-score-subtitle,
+  .extra-score-window-range,
+  .extra-score-summary-label,
+  .extra-score-summary-value span,
+  .extra-score-filter-chip,
+  .extra-score-template-meta div,
+  .extra-score-template-tag,
+  .extra-score-rule-level,
+  .extra-score-rule-level strong,
+  .extra-score-rule-muted,
+  .extra-score-rule-note,
+  .extra-score-period-group-head,
+  .extra-score-period-group-head small,
+  .extra-score-record-meta,
+  .extra-score-record-status,
+  .extra-score-record-score,
+  .extra-score-record-time,
+  .extra-score-record-link,
+  .extra-score-apply-hint,
+  .extra-score-proof-tip,
+  .extra-score-help-text
+) {
+  font-size: 14px !important;
+}
+
+.student-home-page :where(
+  .scores-scope-primary,
+  .scores-subject-name,
+  .scores-student-meta h2,
+  .scores-panel-title,
+  .scores-section-title,
+  .extra-score-title.ant-typography,
+  .extra-score-closed-title.ant-typography,
+  .extra-score-modal-title
+) {
+  font-size: 24px !important;
+}
+
+.student-home-page .profile-avatar .anticon {
+  font-size: 42px !important;
+}
+
+.student-home-page .profile-name-row .ant-typography {
+  font-size: 28px !important;
+}
+
+.student-home-page .profile-student-badge,
+.student-home-page .profile-fact-item,
+.student-home-page .profile-secondary-btn,
+.student-home-page .profile-contact-item span,
+.student-home-page .profile-radar-time,
+.student-home-page .profile-detail-btn,
+.student-home-page .profile-analysis-section-label,
+.student-home-page .profile-radar-metric span,
+.student-home-page .profile-radar-metric em,
+.student-home-page .profile-analysis-desc,
+.student-home-page .profile-analysis-primary-box,
+.student-home-page .profile-mini-title,
+.student-home-page .profile-portrait-row,
+.student-home-page .profile-email-warning,
+.student-home-page .profile-export-tip {
+  font-size: 14px !important;
+}
+
+.student-home-page .profile-fact-icon,
+.student-home-page .profile-contact-item strong,
+.student-home-page .profile-dimension-group-label,
+.student-home-page .profile-suggestion-list li,
+.student-home-page .profile-suggestion-empty,
+.student-home-page .profile-analysis-primary-box strong {
+  font-size: 15px !important;
+}
+
+.student-home-page .profile-analysis-summary-text {
+  font-size: 16px !important;
+}
+
+.student-home-page .profile-section-title,
+.student-home-page .profile-mini-panel-head span {
+  font-size: 18px !important;
+}
+
+.student-home-page .profile-mini-panel-head {
+  font-size: 20px !important;
+}
+
+.student-home-page .profile-analysis-title-row .ant-typography {
+  font-size: 26px !important;
+}
+
+.student-home-page .profile-radar-metric strong {
+  font-size: 30px !important;
+}
+
+.student-home-page .profile-trend-empty .anticon {
+  font-size: 34px !important;
+}
+
+.student-home-page .profile-trend-empty span,
+.student-home-page .profile-mini-line {
+  font-size: 13px !important;
+}
+
+.student-home-page .profile-dimension-tag {
+  font-size: 14px !important;
+}
+
+.student-home-page .filter-label,
+.student-home-page .summary-label,
+.student-home-page .summary-unit,
+.student-home-page .review-hint-inline,
+.student-home-page .review-selection-status,
+.student-home-page .review-table-card .ant-table-thead > tr > th,
+.student-home-page .review-pending-tag {
+  font-size: 15px !important;
+}
+
+.student-home-page .filter-select,
+.student-home-page .review-table-card .ant-card-head-title,
+.student-home-page .committee-review-summary-tag,
+.student-home-page .review-empty .ant-empty-description {
+  font-size: 17px !important;
+}
+
+.student-home-page .summary-chip strong,
+.student-home-page .review-drawer .ant-drawer-title,
+.student-home-page .review-modal .ant-modal-title {
+  font-size: 20px !important;
+}
+
+.student-home-page .review-proof-video,
+.student-home-page .committee-review-summary-detail,
+.student-home-page .review-class-student-count,
+.student-home-page .review-class-stat-label,
+.student-home-page .review-class-card-footer {
+  font-size: 14px !important;
+}
+
+.student-home-page .review-class-name {
+  font-size: 19px !important;
+}
+
+.student-home-page .review-class-stat-value {
+  font-size: 22px !important;
+}
+
+.student-home-page .scores-page {
+  font-size: 16px;
+}
+
+.student-home-page .scores-page :where(
+  .scores-export-btn,
+  .scores-refresh-btn,
+  .scores-filter-label,
+  .scores-select,
+  .scores-tab,
+  .scores-dashboard-link,
+  .scores-preview-row,
+  .scores-dashboard-rank-row,
+  .scores-second-class-grid span,
+  .scores-composite-grid span,
+  .scores-rank-box-label,
+  .scores-rank-box-value span,
+  .scores-student-facts,
+  .scores-chip,
+  .scores-table .ant-table,
+  .scores-table .ant-table-thead > tr > th,
+  .scores-table .ant-table-tbody > tr > td,
+  .scores-table .ant-table-summary,
+  .ant-table-pagination,
+  .ant-pagination,
+  .ant-tag
+) {
+  font-size: 16px !important;
+}
+
+.student-home-page .scores-page :where(
+  .scores-card-title,
+  .scores-dashboard-panel h3,
+  .scores-overview-panel-title,
+  .scores-ranking-card-head,
+  .scores-student-meta h2,
+  .scores-rank-box-value,
+  .scores-composite-grid strong,
+  .scores-second-class-grid strong,
+  .scores-dashboard-rank-row strong
+) {
+  font-size: 18px !important;
+}
+
+.student-home-main:has(.extra-history-page) {
+  padding: 14px;
+}
+
+.student-home-main:has(.extra-history-page) .extra-history-page {
+  width: min(100%, calc(100vw - 32px));
+  max-width: none;
+  margin: 0 auto;
+}
+
+.extra-history-page > .ant-card {
+  width: 100%;
+}
+
+.extra-history-page .ant-table-wrapper,
+.extra-history-page .ant-table {
+  width: 100%;
+}

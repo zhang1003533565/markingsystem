@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="doorBlue" x1="15" y1="12" x2="37" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#466b8b"/><stop offset="1" stop-color="#17344e"/></linearGradient>
+    <linearGradient id="arrowBlue" x1="37" y1="28" x2="58" y2="43" gradientUnits="userSpaceOnUse"><stop stop-color="#4d82bd"/><stop offset="1" stop-color="#1f5e9f"/></linearGradient>
+    <filter id="logoutShadow" x="0" y="0" width="64" height="64"><feDropShadow dx="0" dy="2" stdDeviation="1.3" flood-color="#0f172a" flood-opacity=".24"/></filter>
+  </defs>
+  <g filter="url(#logoutShadow)" stroke-linejoin="round">
+    <path d="M16 12 37 8v48l-21-5z" fill="url(#doorBlue)" stroke="#112b42" stroke-width="1.6"/>
+    <path d="M37 18h10v12" fill="none" stroke="#263f58" stroke-width="4" stroke-linecap="round"/>
+    <path d="M37 46h10V34" fill="none" stroke="#263f58" stroke-width="4" stroke-linecap="round"/>
+    <path d="M38 32h13v-7l10 10-10 10v-7H38z" fill="url(#arrowBlue)" stroke="#174d84" stroke-width="1.5"/>
+    <rect x="28" y="31" width="3" height="7" rx="1.5" fill="#0c2237"/>
+  </g>
+</svg>

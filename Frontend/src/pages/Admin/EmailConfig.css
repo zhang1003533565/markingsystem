@@ -1,0 +1,126 @@
+.email-policy-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+  padding: 18px 20px;
+  border: 1px solid #dbeafe;
+  border-radius: 8px;
+  background: #f8fbff;
+}
+
+.email-policy-content {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.email-policy-content h2 {
+  margin: 0 0 6px;
+  color: #1e3a8a;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.email-policy-content p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.email-policy-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 28px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.email-policy-status.active {
+  color: #166534;
+  background: #dcfce7;
+}
+
+.email-policy-status.inactive {
+  color: #475569;
+  background: #e2e8f0;
+}
+
+.email-policy-toggle {
+  min-width: 120px;
+  padding: 9px 16px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.email-policy-toggle.is-on {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.email-policy-toggle.is-off {
+  color: #ffffff;
+  background: #2563eb;
+}
+
+.email-policy-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.email-config-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+
+.email-config-intro p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.email-config-intro .btn {
+  flex-shrink: 0;
+}
+
+.email-config-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.email-config-page .data-table {
+  min-width: 640px;
+}
+
+@media (max-width: 768px) {
+  .email-policy-card,
+  .email-config-intro {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .email-policy-content {
+    align-items: flex-start;
+  }
+
+  .email-config-form {
+    grid-template-columns: 1fr;
+  }
+}

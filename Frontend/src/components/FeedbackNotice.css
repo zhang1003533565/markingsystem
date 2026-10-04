@@ -1,0 +1,137 @@
+.feedback-notice {
+  --notice-color: #175cd3;
+  --notice-border: #b2ccff;
+  --notice-surface: #f5f8ff;
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 11px 13px;
+  border: 1px solid var(--notice-border);
+  border-radius: 10px;
+  background: var(--notice-surface);
+}
+
+.feedback-notice-success {
+  --notice-color: #15803d;
+  --notice-border: #bbf7d0;
+  --notice-surface: #f2fcf5;
+}
+
+.feedback-notice-warning {
+  --notice-color: #b54708;
+  --notice-border: #fedf89;
+  --notice-surface: #fffaeb;
+}
+
+.feedback-notice-error {
+  --notice-color: #b42318;
+  --notice-border: #fecdca;
+  --notice-surface: #fff6f5;
+}
+
+.feedback-notice-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  color: var(--notice-color);
+  background: #fff;
+  font-size: 15px;
+}
+
+.feedback-notice-content {
+  min-width: 0;
+}
+
+.feedback-notice-title {
+  color: #182230;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.feedback-notice-message {
+  margin-top: 1px;
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.feedback-notice-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  margin-top: 6px;
+}
+
+.feedback-notice-explanation {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+
+.feedback-notice-explanation span {
+  color: var(--notice-color);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.feedback-notice-explanation p {
+  margin: 0;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.feedback-notice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.feedback-notice-dismiss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  color: #667085;
+  background: transparent;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.feedback-notice-dismiss:hover {
+  color: #344054;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.feedback-notice-dismiss:focus-visible {
+  outline: 3px solid rgba(46, 144, 250, 0.22);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .feedback-notice {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    padding: 10px 11px;
+  }
+
+  .feedback-notice-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .feedback-notice-details {
+    display: grid;
+    gap: 4px;
+  }
+}

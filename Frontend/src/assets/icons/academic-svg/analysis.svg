@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="analysisLine" x1="11" y1="51" x2="52" y2="12" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2e6ca6"/>
+      <stop offset="1" stop-color="#214c83"/>
+    </linearGradient>
+    <filter id="analysisShadow" x="0" y="0" width="64" height="64">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.1" flood-color="#0f172a" flood-opacity=".22"/>
+    </filter>
+  </defs>
+  <g filter="url(#analysisShadow)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 51V14M12 51h40" stroke="#bac4cf" stroke-width="3"/>
+    <g stroke="#d7dde4" stroke-width="1.2" opacity=".8">
+      <path d="M20 51V20M28 51V20M36 51V20M44 51V20"/>
+      <path d="M12 43h37M12 35h37M12 27h37"/>
+    </g>
+    <path d="m14 48 11-12 9 7 15-21" stroke="url(#analysisLine)" stroke-width="5"/>
+    <path d="M45 19h8v8" stroke="#214c83" stroke-width="4"/>
+    <g fill="#315f97" stroke="#17375d" stroke-width="1.5">
+      <circle cx="25" cy="36" r="4"/>
+      <circle cx="34" cy="43" r="4"/>
+    </g>
+  </g>
+</svg>
