@@ -62,6 +62,8 @@ import MessageBanner from '../components/MessageBanner'
 import StudentLayout from '../components/StudentLayout'
 import ClassStatistics from '../pages/Student/ClassStatistics'
 import LegacyExtraScoreRedirect from '../components/LegacyExtraScoreRedirect'
+const MaterialUpload = lazy(() => import('../pages/Student/MaterialUpload'))
+const MaterialTrace = lazy(() => import('../pages/Student/MaterialTrace'))
 
 // 路由配置
 export const routes = [
@@ -273,6 +275,10 @@ export const routes = [
       {
         path: 'developer-credits',
         element: <DeveloperCredits />
+      },
+      {
+        path: 'material-trace/:chainCode',
+        element: <MaterialTrace />
       }
     ]
   },
@@ -393,6 +399,18 @@ export const routes = [
     element: <ScoreCheck />,
     protected: true,
     allowedRoles: ['CLASS_COMMITTEE']
+  },
+  {
+    path: '/student/material-upload',
+    element: <MaterialUpload />,
+    protected: true,
+    allowedRoles: ['STUDENT', 'CLASS_COMMITTEE']
+  },
+  {
+    path: '/student/material-trace/:chainCode',
+    element: <MaterialTrace />,
+    protected: true,
+    allowedRoles: ['STUDENT', 'CLASS_COMMITTEE']
   },
   {
     path: '/student/extra/process',
