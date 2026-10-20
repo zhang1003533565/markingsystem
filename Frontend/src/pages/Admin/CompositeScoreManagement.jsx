@@ -503,6 +503,11 @@ function CompositeScoreManagement() {
         category={detailCategory}
         rows={detailRows}
         loading={detailLoading}
+        summary={detailStudent}
+        finalScore={detailCategory === 'PHYSICAL' && detailType === 'base'
+          ? (detailStudent?.weightedPhysicalBaseScore ?? detailStudent?.physicalBaseScore)
+          : null}
+        weight={detailStudent?.weight?.physicalBaseWeight ?? null}
       />
 
       {historyOpen && (

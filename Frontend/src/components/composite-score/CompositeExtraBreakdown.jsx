@@ -10,6 +10,8 @@ const toNumber = (value) => {
   return Number.isFinite(numericValue) ? numericValue : 0
 }
 
+const formatReviewTime = (value) => (value ? String(value).replace('T', ' ').slice(0, 19) : null)
+
 function CompositeExtraBreakdown({ rows }) {
   const [filter, setFilter] = useState('all')
 
@@ -90,6 +92,18 @@ function CompositeExtraBreakdown({ rows }) {
               <div className="composite-extra-item__meta">
                 {item.templateName ? <span>模板：{item.templateName}</span> : null}
                 {item.awardTime ? <span>获得时间：{item.awardTime}</span> : null}
+                {item.teacherReviewerName || item.teacherReviewedAt ? (
+                  <span>
+                    教师审核：{item.teacherReviewerName || '-'}
+                    {formatReviewTime(item.teacherReviewedAt) ? ` ${formatReviewTime(item.teacherReviewedAt)}` : ''}
+                  </span>
+                ) : null}
+                {item.committeeReviewerName || item.committeeReviewedAt ? (
+                  <span>
+                    学院审核：{item.committeeReviewerName || '-'}
+                    {formatReviewTime(item.committeeReviewedAt) ? ` ${formatReviewTime(item.committeeReviewedAt)}` : ''}
+                  </span>
+                ) : null}
               </div>
 
               {!counted ? (

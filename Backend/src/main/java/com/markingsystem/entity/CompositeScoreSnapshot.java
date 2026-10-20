@@ -94,6 +94,18 @@ public class CompositeScoreSnapshot {
     @Column(name = "moral_base_details_json", columnDefinition = "TEXT")
     private String moralBaseDetailsJson;
 
+    @Lob
+    @Column(name = "weight_snapshot_json", columnDefinition = "TEXT")
+    private String weightSnapshotJson;
+
+    @Lob
+    @Column(name = "subject_category_json", columnDefinition = "TEXT")
+    private String subjectCategoryJson;
+
+    @Lob
+    @Column(name = "extra_score_detail_json", columnDefinition = "TEXT")
+    private String extraScoreDetailJson;
+
     @Column(name = "weighted_moral_base_score")
     private Double weightedMoralBaseScore;
 

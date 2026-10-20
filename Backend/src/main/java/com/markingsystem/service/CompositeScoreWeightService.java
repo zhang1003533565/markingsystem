@@ -28,6 +28,8 @@ public class CompositeScoreWeightService {
         existing.setIntellectualExtraWeight(input.getIntellectualExtraWeight());
         existing.setPhysicalBaseWeight(input.getPhysicalBaseWeight());
         existing.setPhysicalExtraWeight(input.getPhysicalExtraWeight());
+        int nextVersion = (existing.getVersion() == null ? 1 : existing.getVersion()) + 1;
+        existing.setVersion(nextVersion);
         return compositeScoreWeightRepository.save(existing);
     }
 

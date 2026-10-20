@@ -104,6 +104,7 @@ public class AdminCompositeScoreService {
     private ObjectMapper objectMapper;
 
     private static final TypeReference<List<Map<String, Object>>> DETAIL_LIST_TYPE = new TypeReference<>() {};
+    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {};
 
     private final ConcurrentMap<String, RefreshTaskState> refreshTasks = new ConcurrentHashMap<>();
 
@@ -644,8 +645,21 @@ public class AdminCompositeScoreService {
             }
         }
 
+        String normalizedYear = academicYear == null ? "" : academicYear.trim();
+        if (!normalizedYear.isBlank()) {
+            CompositeScoreSnapshot snapshot = compositeScoreSnapshotRepository
+                    .findFirstByAcademicYearAndStudentNoOrderByGeneratedAtDesc(normalizedYear, student.getStudentNo())
+                    .orElse(null);
+            List<Map<String, Object>> frozen = snapshot == null ? null : deserializeDetails(snapshot.getExtraScoreDetailJson());
+            if (frozen != null) {
+                return frozen.stream()
+                        .filter(detail -> matchesScoreType(String.valueOf(detail.get("scoreType")), category))
+                        .toList();
+            }
+        }
+
         List<ExtraScoreApplication> scopedApplications = extraScoreApplicationRepository.findByStudentNoAndStatus(student.getStudentNo(), "approved").stream()
-                .filter(application -> matchesAcademicYear(resolveApplicationYear(application), academicYear == null ? "" : academicYear.trim()))
+                .filter(application -> matchesAcademicYear(resolveApplicationYear(application), normalizedYear))
                 .filter(application -> matchesScoreType(application.getScoreType(), category))
                 .sorted(Comparator.comparing(ExtraScoreApplication::getAwardTime, Comparator.nullsLast(Comparator.reverseOrder()))
                         .thenComparing(ExtraScoreApplication::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
@@ -824,7 +838,15 @@ public class AdminCompositeScoreService {
                 .average()
                 .orElse(0D);
 
-        Map<Long, Double> effectiveExtraScores = effectiveScoreService.resolveEffectiveSignedScores(scopedApplications);
+        Map<Long, ExtraScoreEffectiveScoreService.EffectiveScoreResult> effectiveScoreResults =
+                effectiveScoreService.resolveEffectiveScoreResults(scopedApplications);
+        Map<Long, Double> effectiveExtraScores = effectiveScoreResults.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().effectiveSignedScore(),
+                        (left, right) -> left,
+                        LinkedHashMap::new
+                ));
 
         double moralExtraScore = scopedApplications.stream()
                 .filter(application -> "MORAL".equalsIgnoreCase(application.getScoreType()))
@@ -890,10 +912,15 @@ public class AdminCompositeScoreService {
         row.put("weightedIntellectualExtraScore", round(weightedIntellectualExtra));
         row.put("weightedPhysicalBaseScore", round(weightedPhysicalBase));
         row.put("weightedPhysicalExtraScore", round(weightedPhysicalExtra));
-        row.put("weight", toWeightMap(weight));
+        Map<String, Object> weightSnapshot = new LinkedHashMap<>(toWeightMap(weight));
+        weightSnapshot.put("weightVersion", weight.getVersion() == null ? 1 : weight.getVersion());
+        weightSnapshot.put("weightConfigUpdatedAt", weight.getUpdatedAt() == null ? null : weight.getUpdatedAt().toString());
+        row.put("weight", weightSnapshot);
         row.put("moralBaseDetailsJson", serializeDetails(buildMoralBaseDetails(moralScores)));
         row.put("intellectualBaseDetailsJson", serializeDetails(buildIntellectualBaseDetails(scopedScores, subjectCategoryMap)));
         row.put("physicalBaseDetailsJson", serializeDetails(buildPhysicalBaseDetails(scopedScores, subjectCategoryMap, physicalBaseFullScoreEnabled, physicalCourseAverage, physicalBaseScore)));
+        row.put("subjectCategoryJson", serializeDetails(buildSubjectCategorySnapshot(subjectCategoryMap, scopedScores)));
+        row.put("extraScoreDetailJson", serializeDetails(buildExtraScoreDetailSnapshot(scopedApplications, effectiveScoreResults)));
         row.put("totalScore", round(breakdown.totalScore));
         row.put("scoreCount", scopedScores.size());
         return row;
@@ -975,6 +1002,12 @@ public class AdminCompositeScoreService {
         detail.put("awardTime", application.getAwardTime());
         detail.put("status", application.getStatus());
         detail.put("detailDesc", application.getDetailDesc());
+        detail.put("committeeStatus", application.getCommitteeStatus());
+        detail.put("committeeReviewerName", application.getCommitteeReviewerName());
+        detail.put("committeeReviewedAt", application.getCommitteeReviewedAt());
+        detail.put("teacherStatus", application.getTeacherStatus());
+        detail.put("teacherReviewerName", application.getTeacherReviewerName());
+        detail.put("teacherReviewedAt", application.getTeacherReviewedAt());
         return detail;
     }
 
@@ -1136,6 +1169,59 @@ public class AdminCompositeScoreService {
         }
     }
 
+    private String serializeMap(Object value) {
+        try {
+            return objectMapper.writeValueAsString(value == null ? Map.of() : value);
+        } catch (JsonProcessingException exception) {
+            return "{}";
+        }
+    }
+
+    private Map<String, Object> deserializeMap(String json) {
+        if (json == null || json.isBlank()) {
+            return null;
+        }
+        try {
+            return objectMapper.readValue(json, MAP_TYPE);
+        } catch (JsonProcessingException exception) {
+            return null;
+        }
+    }
+
+    private List<Map<String, Object>> buildSubjectCategorySnapshot(
+            Map<Long, String> subjectCategoryMap,
+            List<SubjectScoreRAIN> scopedScores) {
+        Map<Long, String> subjectNameById = new LinkedHashMap<>();
+        for (SubjectScoreRAIN score : scopedScores) {
+            if (score.getSubject() != null && score.getSubject().getId() != null) {
+                subjectNameById.putIfAbsent(
+                        score.getSubject().getId(),
+                        score.getSubject().getSubjectName() == null ? "" : score.getSubject().getSubjectName()
+                );
+            }
+        }
+        return subjectCategoryMap.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .map(entry -> {
+                    Map<String, Object> item = new LinkedHashMap<>();
+                    item.put("subjectId", entry.getKey());
+                    item.put("subjectName", subjectNameById.getOrDefault(entry.getKey(), ""));
+                    item.put("category", entry.getValue());
+                    return item;
+                })
+                .toList();
+    }
+
+    private List<Map<String, Object>> buildExtraScoreDetailSnapshot(
+            List<ExtraScoreApplication> scopedApplications,
+            Map<Long, ExtraScoreEffectiveScoreService.EffectiveScoreResult> effectiveScoreResults) {
+        return scopedApplications.stream()
+                .sorted(Comparator.comparing(ExtraScoreApplication::getAwardTime, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(ExtraScoreApplication::getCreatedAt, Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(application -> toExtraScoreDetail(application, effectiveScoreResults.get(application.getId())))
+                .toList();
+    }
+
     public Map<String, Object> getWeightConfig() {
         return toWeightMap(compositeScoreWeightService.getCurrentWeight());
     }
@@ -1210,6 +1296,9 @@ public class AdminCompositeScoreService {
         snapshot.setIntellectualBaseDetailsJson(asString(row.get("intellectualBaseDetailsJson")));
         snapshot.setPhysicalBaseDetailsJson(asString(row.get("physicalBaseDetailsJson")));
         snapshot.setMoralBaseDetailsJson(asString(row.get("moralBaseDetailsJson")));
+        snapshot.setWeightSnapshotJson(serializeMap(row.get("weight")));
+        snapshot.setSubjectCategoryJson(asString(row.get("subjectCategoryJson")));
+        snapshot.setExtraScoreDetailJson(asString(row.get("extraScoreDetailJson")));
         snapshot.setTotalScore(asDouble(row.get("totalScore")));
         snapshot.setGeneratedAt(generatedAt);
         snapshot.setUpdatedByUserId(updatedByUserId);
@@ -1235,9 +1324,14 @@ public class AdminCompositeScoreService {
         row.put("physicalBaseScore", snapshot.getPhysicalBaseScore());
         row.put("physicalCourseAverage", snapshot.getPhysicalCourseAverage());
         row.put("physicalBaseFullScoreEnabled", snapshot.getPhysicalBaseFullScoreEnabled());
-        if (snapshot.getPhysicalBaseWeight() != null) {
+        Map<String, Object> weightSnapshot = deserializeMap(snapshot.getWeightSnapshotJson());
+        if (weightSnapshot != null && !weightSnapshot.isEmpty()) {
+            row.put("weight", weightSnapshot);
+        } else if (snapshot.getPhysicalBaseWeight() != null) {
             row.put("weight", Map.of("physicalBaseWeight", snapshot.getPhysicalBaseWeight()));
         }
+        row.put("subjectCategory", deserializeDetails(snapshot.getSubjectCategoryJson()));
+        row.put("extraScoreDetail", deserializeDetails(snapshot.getExtraScoreDetailJson()));
         row.put("physicalExtraScore", snapshot.getPhysicalExtraScore());
         row.put("weightedMoralBaseScore", snapshot.getWeightedMoralBaseScore());
         row.put("weightedMoralExtraScore", snapshot.getWeightedMoralExtraScore());

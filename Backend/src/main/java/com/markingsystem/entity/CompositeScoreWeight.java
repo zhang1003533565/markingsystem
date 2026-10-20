@@ -39,6 +39,9 @@ public class CompositeScoreWeight {
     @Column(name = "physical_extra_weight", nullable = false)
     private Double physicalExtraWeight = 1D;
 
+    @Column(name = "version")
+    private Integer version = 1;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
