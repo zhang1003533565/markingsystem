@@ -19,6 +19,7 @@ import {
   message,
 } from 'antd'
 import {
+  BulbOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloseCircleOutlined,
@@ -28,9 +29,11 @@ import {
   FileTextOutlined,
   ReloadOutlined,
   RollbackOutlined,
+  WarningOutlined,
 } from './AcademicIcons'
 import { getStoredUser, withAuthToken } from '../utils/authStorage'
 import {
+  aiAssistExtraScoreApplication,
   batchApproveExtraScoreApplications,
   batchReturnExtraScoreApplications,
   committeeReviewExtraScoreApplication,
@@ -100,6 +103,14 @@ const formatSignedScore = (value, direction) =>
   `${normalizeScoreDirection(direction) === 'deduct' ? '-' : '+'}${Number(value || 0).toFixed(1)} 分`
 const formatDateTime = (value) => (value ? String(value).replace('T', ' ').slice(0, 16) : '-')
 const getPeriodLabel = (record) => record?.submissionPeriodLabel || '提交周期'
+const parseAiSuggestion = (json) => {
+  if (!json) return null
+  try {
+    return JSON.parse(json)
+  } catch {
+    return { raw: String(json), confidence: '低' }
+  }
+}
 const getProofImageUrl = (value) =>
   String(value || '').startsWith('/uploads/') ? `/api${value}` : value
 const isImageUrl = (value) => /\.(png|jpe?g|webp|gif|bmp|svg)(\?.*)?$/i.test(String(value || ''))
@@ -284,6 +295,8 @@ function ExtraScoreReviewPanel({
   const [loadingStudentApplications, setLoadingStudentApplications] = useState(false)
   const [selectedRecord, setSelectedRecord] = useState(null)
   const [selectedRecordLoading, setSelectedRecordLoading] = useState(false)
+  const [aiAssistLoading, setAiAssistLoading] = useState(false)
+  const [aiAssistResult, setAiAssistResult] = useState(null)
   const [selectedStudentGroup, setSelectedStudentGroup] = useState(null)
   const [selectedClass, setSelectedClass] = useState(queryReviewFilters.selectedClass)
   const [reviewModal, setReviewModal] = useState({
@@ -475,14 +488,104 @@ function ExtraScoreReviewPanel({
   const handleOpenRecordDetail = async (record) => {
     setSelectedRecord(record)
     setSelectedRecordLoading(true)
+    setAiAssistResult(parseAiSuggestion(record?.aiSuggestionJson))
     try {
       const response = await getExtraScoreReviewApplicationDetail(record.id)
       setSelectedRecord(response?.data || record)
+      setAiAssistResult(parseAiSuggestion(response?.data?.aiSuggestionJson))
     } catch (error) {
       message.error(error?.response?.data?.message || '获取申请详情失败')
     } finally {
       setSelectedRecordLoading(false)
     }
+  }
+
+  const handleAiAssist = async () => {
+    if (!selectedRecord?.id) return
+    setAiAssistLoading(true)
+    try {
+      const response = await aiAssistExtraScoreApplication(selectedRecord.id)
+      const result = response?.data || null
+      setAiAssistResult(result)
+      setSelectedRecord((prev) => (prev ? { ...prev, aiSuggestionJson: JSON.stringify(result) } : prev))
+      message.success('AI 审核建议已生成')
+    } catch (error) {
+      message.error(error?.response?.data?.message || '生成 AI 审核建议失败')
+    } finally {
+      setAiAssistLoading(false)
+    }
+  }
+
+  const renderAiAssistCard = () => {
+    const result = aiAssistResult
+    const isFallback = result?.mode === 'fallback'
+    const decision = result?.suggestion?.decision
+    const decisionColor = decision === '建议通过' ? 'green' : decision === '建议驳回' ? 'red' : 'orange'
+    const ocr = result?.ocr || {}
+    const hasOcr = Object.values(ocr).some((value) => value)
+    const suspects = Array.isArray(result?.suspects) ? result.suspects : []
+
+    return (
+      <Card
+        size="small"
+        title={
+          <Space>
+            <BulbOutlined />
+            <span>AI 审核助手</span>
+            <Text type="secondary" style={{ fontWeight: 'normal' }}>
+              （仅作参考，最终以人工审核为准）
+            </Text>
+          </Space>
+        }
+        extra={
+          <Button size="small" type="primary" ghost loading={aiAssistLoading} onClick={handleAiAssist}>
+            {result ? '重新生成' : '生成审核建议'}
+          </Button>
+        }
+      >
+        {!result ? (
+          <Text type="secondary">点击「生成审核建议」，AI 将识别证书图片并给出结构化参考意见。</Text>
+        ) : (
+          <Space direction="vertical" size={8} style={{ width: '100%' }}>
+            {isFallback ? <Tag>{result?.note || '规则审核（未调用视觉模型）'}</Tag> : null}
+            {hasOcr ? (
+              <Descriptions column={2} size="small" bordered>
+                <Descriptions.Item label="证书名称">{ocr.certName || '-'}</Descriptions.Item>
+                <Descriptions.Item label="证书编号">{ocr.certNo || '-'}</Descriptions.Item>
+                <Descriptions.Item label="奖项级别">{ocr.levelName || '-'}</Descriptions.Item>
+                <Descriptions.Item label="获奖时间">{ocr.awardTime || '-'}</Descriptions.Item>
+                <Descriptions.Item label="作者/排名">{ocr.authorLabel || '-'}</Descriptions.Item>
+              </Descriptions>
+            ) : null}
+            <div>
+              <Tag color={decisionColor}>{decision || '未给出结论'}</Tag>
+              <Tag color={result?.confidence === '高' ? 'green' : result?.confidence === '中' ? 'orange' : 'default'}>
+                置信度：{result?.confidence || '未知'}
+              </Tag>
+            </div>
+            {result?.suggestion?.reason ? <Text>{result.suggestion.reason}</Text> : null}
+            {suspects.length ? (
+              <div>
+                <Space size={4} style={{ marginBottom: 4 }}>
+                  <WarningOutlined style={{ color: '#faad14' }} />
+                  <Text strong>疑点（{suspects.length}）</Text>
+                </Space>
+                {suspects.map((item, index) => (
+                  <div key={index} style={{ marginBottom: 4 }}>
+                    <Tag color={item.level === '高' ? 'red' : item.level === '中' ? 'orange' : 'default'}>
+                      {item.type}
+                    </Tag>
+                    <Text type="secondary">{item.detail}</Text>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Text type="secondary">未发现明显疑点。</Text>
+            )}
+          </Space>
+        )}
+      </Card>
+    )
   }
 
   // Debounced search
@@ -2416,7 +2519,9 @@ function ExtraScoreReviewPanel({
         {selectedRecordLoading ? (
           <Spin />
         ) : selectedRecord ? (
-          <Descriptions column={1} bordered size="small">
+          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+            {renderAiAssistCard()}
+            <Descriptions column={1} bordered size="small">
             <Descriptions.Item label="学号">{selectedRecord.studentNo || '-'}</Descriptions.Item>
             <Descriptions.Item label="班级">{selectedRecord.className || '-'}</Descriptions.Item>
             <Descriptions.Item label="模板">{selectedRecord.templateName || '-'}</Descriptions.Item>
@@ -2514,7 +2619,8 @@ function ExtraScoreReviewPanel({
             <Descriptions.Item label="问题说明">
               {selectedRecord.returnReason || '-'}
             </Descriptions.Item>
-          </Descriptions>
+            </Descriptions>
+          </Space>
         ) : null}
       </Drawer>
 

@@ -16,6 +16,8 @@ public class Message {
     private String role;
     private String content;
     private String name;
+    /** 视觉输入图片（OpenAI 兼容协议 image_url，支持 http 地址或 data:image/...;base64,...） */
+    private List<String> imageUrls;
     private List<ToolCallRequest> toolCalls;
     private String toolCallId;
     /** AI 回复引用的知识库来源（仅展示用，不发送给大模型） */

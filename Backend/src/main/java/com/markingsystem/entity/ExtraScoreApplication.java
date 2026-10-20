@@ -187,6 +187,12 @@ public class ExtraScoreApplication {
     @Column(name = "current_revision_no", nullable = false)
     private Integer currentRevisionNo = 1;
 
+    @Column(name = "ai_suggestion_json", columnDefinition = "LONGTEXT")
+    private String aiSuggestionJson;
+
+    @Column(name = "ai_reviewed_at")
+    private LocalDateTime aiReviewedAt;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

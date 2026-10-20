@@ -47,6 +47,11 @@ export const getExtraScoreReviewApplicationDetail = (id) => request({
   method: 'get'
 });
 
+export const aiAssistExtraScoreApplication = (id) => request({
+  url: `/extra-score-review/${id}/ai-assist`,
+  method: 'post'
+});
+
 export const committeeReviewExtraScoreApplication = (id, data) => request({
   url: `/extra-score-review/${id}/committee`,
   method: 'post',

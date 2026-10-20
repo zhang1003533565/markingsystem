@@ -2529,6 +2529,8 @@ public class ExtraScoreApplicationService {
         result.put("teacherActionable", teacherActionable);
         result.put("teacherWithdrawalActionable", isTeacherWithdrawalActionable(application, committeeCount));
         result.put("readOnly", context.isAdmin());
+        result.put("aiSuggestionJson", application.getAiSuggestionJson());
+        result.put("aiReviewedAt", application.getAiReviewedAt());
         return result;
     }
 
@@ -2577,7 +2579,7 @@ public class ExtraScoreApplicationService {
         return result;
     }
 
-    private boolean canAccessReviewApplication(RequestUserContext context, ExtraScoreApplication application) {
+    boolean canAccessReviewApplication(RequestUserContext context, ExtraScoreApplication application) {
         if (context.isAdmin()) {
             return true;
         }

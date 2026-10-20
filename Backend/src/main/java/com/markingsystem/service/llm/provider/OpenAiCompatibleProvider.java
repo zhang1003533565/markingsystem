@@ -25,6 +25,7 @@ public class OpenAiCompatibleProvider implements LlmModelProvider {
     private final RestTemplate syncRestTemplate;
     private final RestTemplate streamRestTemplate;
     private final ObjectMapper objectMapper;
+    private final String providerName;
     private final String apiKey;
     private final String baseUrl;
     private final String model;
@@ -38,7 +39,20 @@ public class OpenAiCompatibleProvider implements LlmModelProvider {
             @Value("${ai.openai.stream-enabled:true}") boolean streamEnabled,
             @Value("${ai.chat.sync-timeout-ms:20000}") int syncTimeoutMs,
             @Value("${ai.chat.stream-timeout-ms:60000}") int streamTimeoutMs) {
+        this("openai", objectMapper, apiKey, baseUrl, model, streamEnabled, syncTimeoutMs, streamTimeoutMs);
+    }
 
+    public OpenAiCompatibleProvider(
+            String providerName,
+            ObjectMapper objectMapper,
+            String apiKey,
+            String baseUrl,
+            String model,
+            boolean streamEnabled,
+            int syncTimeoutMs,
+            int streamTimeoutMs) {
+
+        this.providerName = providerName;
         this.objectMapper = objectMapper;
         this.apiKey = apiKey;
         this.baseUrl = baseUrl;
@@ -58,7 +72,7 @@ public class OpenAiCompatibleProvider implements LlmModelProvider {
 
     @Override
     public String name() {
-        return "openai";
+        return providerName;
     }
 
     @Override
@@ -167,7 +181,7 @@ public class OpenAiCompatibleProvider implements LlmModelProvider {
         for (Message m : messages) {
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("role", m.getRole());
-            item.put("content", m.getContent() != null ? m.getContent() : "");
+            item.put("content", buildContent(m));
             if (m.getName() != null) item.put("name", m.getName());
             if (m.getToolCallId() != null) item.put("tool_call_id", m.getToolCallId());
             if (m.getToolCalls() != null && !m.getToolCalls().isEmpty()) {
@@ -187,6 +201,36 @@ public class OpenAiCompatibleProvider implements LlmModelProvider {
             result.add(item);
         }
         return result;
+    }
+
+    /**
+     * 构建消息 content：纯文本时保持字符串；携带图片时切换为 OpenAI 兼容的
+     * content 数组（text + image_url），供视觉模型读取证书等图片。
+     */
+    private Object buildContent(Message m) {
+        String text = m.getContent() != null ? m.getContent() : "";
+        if (m.getImageUrls() == null || m.getImageUrls().isEmpty()) {
+            return text;
+        }
+        List<Map<String, Object>> parts = new ArrayList<>();
+        if (!text.isBlank()) {
+            Map<String, Object> textPart = new LinkedHashMap<>();
+            textPart.put("type", "text");
+            textPart.put("text", text);
+            parts.add(textPart);
+        }
+        for (String imageUrl : m.getImageUrls()) {
+            if (imageUrl == null || imageUrl.isBlank()) {
+                continue;
+            }
+            Map<String, Object> imagePart = new LinkedHashMap<>();
+            imagePart.put("type", "image_url");
+            Map<String, Object> url = new LinkedHashMap<>();
+            url.put("url", imageUrl);
+            imagePart.put("image_url", url);
+            parts.add(imagePart);
+        }
+        return parts;
     }
 
     private ChatResponse parseResponse(JsonNode response) {

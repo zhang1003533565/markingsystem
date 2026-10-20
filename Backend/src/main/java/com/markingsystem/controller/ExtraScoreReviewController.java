@@ -2,6 +2,7 @@ package com.markingsystem.controller;
 
 import com.markingsystem.dto.ExtraScoreApplicationBatchReviewRequest;
 import com.markingsystem.dto.ExtraScoreApplicationReviewRequest;
+import com.markingsystem.service.AiReviewAssistService;
 import com.markingsystem.service.ExtraScoreApplicationService;
 import com.markingsystem.util.RequestUserContext;
 import org.springframework.core.io.Resource;
@@ -22,9 +23,11 @@ import java.util.Map;
 public class ExtraScoreReviewController {
 
     private final ExtraScoreApplicationService extraScoreApplicationService;
+    private final AiReviewAssistService aiReviewAssistService;
 
-    public ExtraScoreReviewController(ExtraScoreApplicationService extraScoreApplicationService) {
+    public ExtraScoreReviewController(ExtraScoreApplicationService extraScoreApplicationService, AiReviewAssistService aiReviewAssistService) {
         this.extraScoreApplicationService = extraScoreApplicationService;
+        this.aiReviewAssistService = aiReviewAssistService;
     }
 
     @GetMapping
@@ -199,6 +202,18 @@ public class ExtraScoreReviewController {
             @RequestHeader(value = "X-Student-No", required = false) String studentNo) {
         RequestUserContext context = RequestUserContext.fromHeaders(userId, role, teacherId, className, studentNo);
         return ResponseEntity.ok(Map.of("code", 200, "data", extraScoreApplicationService.teacherReview(context, id, request)));
+    }
+
+    @PostMapping("/{id}/ai-assist")
+    public ResponseEntity<Map<String, Object>> aiAssistReview(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Teacher-Id", required = false) String teacherId,
+            @RequestHeader(value = "X-Class-Name", required = false) String className,
+            @RequestHeader(value = "X-Student-No", required = false) String studentNo) {
+        RequestUserContext context = RequestUserContext.fromHeaders(userId, role, teacherId, className, studentNo);
+        return ResponseEntity.ok(Map.of("code", 200, "data", aiReviewAssistService.assist(context, id)));
     }
 
     @PostMapping("/batch/approve")
