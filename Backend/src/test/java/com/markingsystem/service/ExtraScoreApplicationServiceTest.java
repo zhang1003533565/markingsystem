@@ -5,6 +5,7 @@ import com.markingsystem.entity.ExtraScoreApplication;
 import com.markingsystem.entity.ExtraScoreSubmissionWindow;
 import com.markingsystem.entity.Student;
 import com.markingsystem.entity.User;
+import com.markingsystem.dto.ExtraScoreApplicationBatchReviewRequest;
 import com.markingsystem.dto.ExtraScoreApplicationReviewRequest;
 import com.markingsystem.repository.AnnouncementRecipientRepository;
 import com.markingsystem.repository.AnnouncementRepository;
@@ -30,6 +31,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExtraScoreApplicationServiceTest {
@@ -136,6 +138,108 @@ class ExtraScoreApplicationServiceTest {
         assertEquals("returned", saved.get(0).getReviewStage());
         assertEquals("returned", saved.get(0).getTeacherStatus());
         assertEquals("材料不完整", saved.get(0).getReturnReason());
+    }
+
+    @Test
+    void batchReturnReviewRejectsWithUnifiedReasonAndRejectType() {
+        Student student = student();
+        ExtraScoreSubmissionWindow window = window();
+        ExtraScoreApplication first = pendingApplication(1L, "pending", null);
+        ExtraScoreApplication second = pendingApplication(2L, "pending", null);
+        ExtraScoreApplicationService service = service(student, window, List.of(first, second), new ArrayList<>());
+
+        ExtraScoreApplicationBatchReviewRequest request = new ExtraScoreApplicationBatchReviewRequest();
+        request.setApplicationIds(List.of(1L, 2L));
+        request.setAction("return");
+        request.setComment("材料不符合加分细则");
+
+        Map<String, Object> result = service.batchReturnReview(teacherContext(), request);
+
+        assertEquals(2, result.get("successCount"));
+        assertEquals(0, result.get("failedCount"));
+        assertEquals("rejected", first.getStatus());
+        assertEquals("returned", first.getReviewStage());
+        assertEquals("returned", first.getTeacherStatus());
+        assertEquals("reject", first.getReturnType());
+        assertEquals("材料不符合加分细则", first.getReturnReason());
+        assertEquals("rejected", second.getStatus());
+        assertEquals("reject", second.getReturnType());
+    }
+
+    @Test
+    void batchReturnReviewSupplementKeepsReturnedStatusAndSupplementType() {
+        Student student = student();
+        ExtraScoreSubmissionWindow window = window();
+        ExtraScoreApplication application = pendingApplication(1L, "pending", null);
+        ExtraScoreApplicationService service = service(student, window, List.of(application), new ArrayList<>());
+
+        ExtraScoreApplicationBatchReviewRequest request = new ExtraScoreApplicationBatchReviewRequest();
+        request.setApplicationIds(List.of(1L));
+        request.setAction("supplement");
+        request.setComment("请补充盖章页后重新提交");
+
+        Map<String, Object> result = service.batchReturnReview(teacherContext(), request);
+
+        assertEquals(1, result.get("successCount"));
+        assertEquals("returned", application.getStatus());
+        assertEquals("returned", application.getReviewStage());
+        assertEquals("returned", application.getTeacherStatus());
+        assertEquals("supplement", application.getReturnType());
+        assertEquals("请补充盖章页后重新提交", application.getReturnReason());
+    }
+
+    @Test
+    void batchReturnReviewSkipsIneligibleRecordsAndReportsFailures() {
+        Student student = student();
+        ExtraScoreSubmissionWindow window = window();
+        ExtraScoreApplication pending = pendingApplication(1L, "pending", null);
+        ExtraScoreApplication approved = approvedOpenPeriodApplication(2L);
+        ExtraScoreApplicationService service = service(student, window, List.of(pending, approved), new ArrayList<>());
+
+        ExtraScoreApplicationBatchReviewRequest request = new ExtraScoreApplicationBatchReviewRequest();
+        request.setApplicationIds(List.of(1L, 2L));
+        request.setAction("return");
+        request.setComment("统一驳回");
+
+        Map<String, Object> result = service.batchReturnReview(teacherContext(), request);
+
+        assertEquals(1, result.get("successCount"));
+        assertEquals(1, result.get("failedCount"));
+        assertEquals("rejected", pending.getStatus());
+        // 已终审通过的记录不能被直接驳回（teacherReview 拒绝），但会按既有规则整包退回，自身结论仍为通过
+        assertEquals("returned", approved.getStatus());
+        assertEquals("approved", approved.getTeacherStatus());
+        List<Map<String, Object>> failed = mapList(result.get("failed"));
+        assertEquals(2L, failed.get(0).get("id"));
+        assertTrue(String.valueOf(failed.get(0).get("message")).contains("已完成审核"));
+    }
+
+    @Test
+    void batchReturnReviewValidatesReasonRoleAndAction() {
+        Student student = student();
+        ExtraScoreSubmissionWindow window = window();
+        ExtraScoreApplication application = pendingApplication(1L, "pending", null);
+        ExtraScoreApplicationService service = service(student, window, List.of(application), new ArrayList<>());
+
+        ExtraScoreApplicationBatchReviewRequest blankReason = new ExtraScoreApplicationBatchReviewRequest();
+        blankReason.setApplicationIds(List.of(1L));
+        blankReason.setAction("return");
+        blankReason.setComment("   ");
+        assertThrows(IllegalArgumentException.class, () -> service.batchReturnReview(teacherContext(), blankReason));
+
+        ExtraScoreApplicationBatchReviewRequest approveAction = new ExtraScoreApplicationBatchReviewRequest();
+        approveAction.setApplicationIds(List.of(1L));
+        approveAction.setAction("approve");
+        approveAction.setComment("走错接口");
+        assertThrows(IllegalArgumentException.class, () -> service.batchReturnReview(teacherContext(), approveAction));
+
+        ExtraScoreApplicationBatchReviewRequest emptyIds = new ExtraScoreApplicationBatchReviewRequest();
+        emptyIds.setApplicationIds(List.of());
+        emptyIds.setAction("supplement");
+        emptyIds.setComment("请补材料");
+        assertThrows(IllegalArgumentException.class, () -> service.batchReturnReview(teacherContext(), emptyIds));
+
+        assertThrows(IllegalArgumentException.class, () -> service.batchReturnReview(studentContext(), blankReason));
     }
 
     @Test

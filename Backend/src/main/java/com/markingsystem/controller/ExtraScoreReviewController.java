@@ -213,6 +213,18 @@ public class ExtraScoreReviewController {
         return ResponseEntity.ok(Map.of("code", 200, "data", extraScoreApplicationService.batchApproveReview(context, request)));
     }
 
+    @PostMapping("/batch/return")
+    public ResponseEntity<Map<String, Object>> batchReturn(
+            @RequestBody ExtraScoreApplicationBatchReviewRequest request,
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestHeader(value = "X-Teacher-Id", required = false) String teacherId,
+            @RequestHeader(value = "X-Class-Name", required = false) String className,
+            @RequestHeader(value = "X-Student-No", required = false) String studentNo) {
+        RequestUserContext context = RequestUserContext.fromHeaders(userId, role, teacherId, className, studentNo);
+        return ResponseEntity.ok(Map.of("code", 200, "data", extraScoreApplicationService.batchReturnReview(context, request)));
+    }
+
     @PostMapping("/committee/force-teacher-stage")
     public ResponseEntity<Map<String, Object>> forceCurrentClassToTeacherStage(
             @RequestHeader(value = "X-User-Id", required = false) String userId,

@@ -843,12 +843,23 @@ public class AdminCompositeScoreService {
 
         double totalExtraScore = moralExtraScore + intellectualExtraScore + physicalExtraScore;
 
-        double weightedMoralBase = moralScore * resolveFactor(weight.getMoralBaseWeight());
-        double weightedIntellectualBase = intellectualBaseScore * resolveFactor(weight.getIntellectualBaseWeight());
-        double weightedPhysicalBase = physicalBaseScore * resolveFactor(weight.getPhysicalBaseWeight());
-        double weightedMoralExtra = moralExtraScore * resolveFactor(weight.getMoralExtraWeight());
-        double weightedIntellectualExtra = intellectualExtraScore * resolveFactor(weight.getIntellectualExtraWeight());
-        double weightedPhysicalExtra = physicalExtraScore * resolveFactor(weight.getPhysicalExtraWeight());
+        CompositeScoreCalculator.CompositeBreakdown breakdown = CompositeScoreCalculator.computeBreakdown(
+                new CompositeScoreCalculator.RawComponents(
+                        moralScore,
+                        intellectualBaseScore,
+                        physicalBaseScore,
+                        moralExtraScore,
+                        intellectualExtraScore,
+                        physicalExtraScore
+                ),
+                weight
+        );
+        double weightedMoralBase = breakdown.weightedMoralBase;
+        double weightedIntellectualBase = breakdown.weightedIntellectualBase;
+        double weightedPhysicalBase = breakdown.weightedPhysicalBase;
+        double weightedMoralExtra = breakdown.weightedMoralExtra;
+        double weightedIntellectualExtra = breakdown.weightedIntellectualExtra;
+        double weightedPhysicalExtra = breakdown.weightedPhysicalExtra;
 
         Map<String, Object> row = new LinkedHashMap<>();
         row.put("studentId", student.getId());
@@ -883,14 +894,7 @@ public class AdminCompositeScoreService {
         row.put("moralBaseDetailsJson", serializeDetails(buildMoralBaseDetails(moralScores)));
         row.put("intellectualBaseDetailsJson", serializeDetails(buildIntellectualBaseDetails(scopedScores, subjectCategoryMap)));
         row.put("physicalBaseDetailsJson", serializeDetails(buildPhysicalBaseDetails(scopedScores, subjectCategoryMap, physicalBaseFullScoreEnabled, physicalCourseAverage, physicalBaseScore)));
-        row.put("totalScore", round(
-                weightedMoralBase
-                        + weightedMoralExtra
-                        + weightedIntellectualBase
-                        + weightedIntellectualExtra
-                        + weightedPhysicalBase
-                        + weightedPhysicalExtra
-        ));
+        row.put("totalScore", round(breakdown.totalScore));
         row.put("scoreCount", scopedScores.size());
         return row;
     }

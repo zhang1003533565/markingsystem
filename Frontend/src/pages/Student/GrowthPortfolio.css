@@ -1,0 +1,319 @@
+/* 学生电子成长档案页面 */
+
+.growth-portfolio-page {
+  padding-bottom: 32px;
+}
+
+.growth-portfolio-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.growth-portfolio-title {
+  margin: 0 0 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #161a22;
+}
+
+.growth-portfolio-subtitle {
+  margin: 0;
+  font-size: 13px;
+  color: #6b7488;
+  max-width: 720px;
+  line-height: 1.7;
+}
+
+.growth-portfolio-actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* 概览统计卡片 */
+.growth-stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.growth-stat-card {
+  background: #fff;
+  border: 1px solid #eceaf2;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.growth-stat-label {
+  font-size: 12px;
+  color: #8a93a6;
+}
+
+.growth-stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #161a22;
+}
+
+.growth-stat-desc {
+  font-size: 12px;
+  color: #a3abbd;
+}
+
+/* 图表区 */
+.growth-chart-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.growth-chart-card {
+  background: #fff;
+  border: 1px solid #eceaf2;
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+
+.growth-chart-card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #161a22;
+}
+
+/* 时间轴 */
+.growth-type-filter {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 0;
+  margin-bottom: 14px;
+}
+
+.growth-timeline-group {
+  background: #fff;
+  border: 1px solid #eceaf2;
+  border-radius: 16px;
+  padding: 16px 20px 6px;
+  margin-bottom: 14px;
+}
+
+.growth-timeline-group-title {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #161a22;
+}
+
+.growth-timeline-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.growth-timeline-item-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.growth-timeline-date {
+  font-size: 12px;
+  color: #8a93a6;
+}
+
+.growth-timeline-score {
+  font-size: 12px;
+  font-weight: 600;
+  color: #fa541c;
+}
+
+.growth-timeline-item-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #161a22;
+}
+
+.growth-timeline-item-subtitle {
+  font-size: 12px;
+  color: #6b7488;
+}
+
+.growth-timeline-item-desc {
+  font-size: 12px;
+  color: #8a93a6;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.growth-timeline-courses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.growth-course-chip {
+  font-size: 12px;
+  color: #4b5468;
+  background: #f6f7fb;
+  border: 1px solid #eceaf2;
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+/* 简历素材 */
+.growth-resume-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.growth-resume-section {
+  background: #fff;
+  border: 1px solid #eceaf2;
+  border-radius: 16px;
+  padding: 16px 20px;
+}
+
+.growth-resume-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.growth-resume-section-head h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #161a22;
+}
+
+.growth-resume-line {
+  margin: 0 0 4px !important;
+  font-size: 13px;
+  color: #3a4356;
+  line-height: 1.8;
+}
+
+.growth-resume-tip {
+  font-size: 12px;
+  color: #a3abbd;
+  margin: 0;
+}
+
+/* A4 打印报告：屏幕隐藏 */
+.growth-print-report {
+  display: none;
+}
+
+/* 浏览器打印（可另存为 PDF）：只渲染 A4 报告 */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .growth-print-report,
+  .growth-print-report * {
+    visibility: visible !important;
+  }
+
+  .growth-print-report {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 24px 32px;
+    background: #fff;
+    color: #161a22;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+
+  .growth-print-report h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+    text-align: center;
+  }
+
+  .growth-print-report h2 {
+    font-size: 15px;
+    margin: 18px 0 8px;
+    padding-left: 8px;
+    border-left: 4px solid #1677ff;
+  }
+
+  .growth-print-basic {
+    text-align: center;
+    color: #4b5468;
+    margin-bottom: 6px;
+  }
+
+  .growth-print-intro {
+    text-align: center;
+    color: #6b7488;
+    font-size: 11.5px;
+    margin: 0 0 8px;
+  }
+
+  .growth-print-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .growth-print-table th,
+  .growth-print-table td {
+    border: 1px solid #d9dde6;
+    padding: 5px 8px;
+    text-align: left;
+    font-size: 12px;
+  }
+
+  .growth-print-table th {
+    background: #f4f6fa;
+  }
+
+  .growth-print-timeline,
+  .growth-print-plain-list {
+    margin: 0;
+    padding-left: 18px;
+  }
+
+  .growth-print-timeline li,
+  .growth-print-plain-list li {
+    margin-bottom: 4px;
+  }
+
+  .growth-print-event-type {
+    color: #1677ff;
+    margin-right: 6px;
+  }
+
+  .growth-print-event-sub {
+    color: #6b7488;
+  }
+
+  .growth-print-empty {
+    color: #8a93a6;
+  }
+
+  .growth-print-footer {
+    margin-top: 20px;
+    padding-top: 8px;
+    border-top: 1px dashed #d9dde6;
+    color: #8a93a6;
+    font-size: 11px;
+    text-align: center;
+  }
+}

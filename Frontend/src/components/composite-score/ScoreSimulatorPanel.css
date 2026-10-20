@@ -1,0 +1,260 @@
+.score-sim {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.score-sim-loading {
+  display: flex;
+  justify-content: center;
+  padding: 48px 0;
+}
+
+.score-sim-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.score-sim-summary-item {
+  background: linear-gradient(160deg, #f6f9ff 0%, #eef3fb 100%);
+  border: 1px solid #e4ecf7;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.score-sim-summary-label {
+  font-size: 12px;
+  color: #8a97ab;
+}
+
+.score-sim-summary-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1f2d3d;
+}
+
+.score-sim-summary-value.primary {
+  color: #2f6bff;
+}
+
+.score-sim-summary-sub {
+  font-size: 13px;
+  font-weight: 500;
+  color: #8a97ab;
+}
+
+.score-sim-card {
+  background: #fff;
+}
+
+.score-sim-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.score-sim-block {
+  border: 1px solid #eef1f6;
+  border-radius: 12px;
+  padding: 16px;
+  background: #fbfcfe;
+}
+
+.score-sim-block-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #33415c;
+  margin-bottom: 12px;
+}
+
+.score-sim-course-list,
+.score-sim-extra-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.score-sim-course-row,
+.score-sim-extra-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.score-sim-course-name {
+  min-width: 96px;
+  font-size: 13px;
+  color: #33415c;
+}
+
+.score-sim-course-tag {
+  margin: 0;
+}
+
+.score-sim-course-current {
+  font-size: 12px;
+  color: #8a97ab;
+  min-width: 64px;
+}
+
+.score-sim-hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: #97a3b6;
+}
+
+.score-sim-result {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.score-sim-result-col {
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: linear-gradient(160deg, #eef4ff 0%, #e7f0ff 100%);
+  border: 1px solid #dbe6fb;
+  transition: opacity 0.2s ease;
+}
+
+.score-sim-result-col.dim {
+  opacity: 0.5;
+}
+
+.score-sim-result-label {
+  font-size: 12px;
+  color: #8a97ab;
+}
+
+.score-sim-result-value {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1f2d3d;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.score-sim-result-total {
+  font-size: 14px;
+  font-weight: 500;
+  color: #8a97ab;
+}
+
+.score-sim-result-sub {
+  font-size: 12px;
+  color: #6b7a90;
+  margin-top: 6px;
+}
+
+.score-sim-delta {
+  font-size: 14px;
+  font-weight: 600;
+  color: #8a97ab;
+}
+
+.score-sim-delta.up {
+  color: #16a34a;
+}
+
+.score-sim-delta.down {
+  color: #dc2626;
+}
+
+.score-sim-reverse-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.score-sim-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.score-sim-field label {
+  font-size: 12px;
+  color: #8a97ab;
+}
+
+.score-sim-field-action {
+  align-self: flex-end;
+}
+
+.score-sim-reverse-result {
+  margin-top: 20px;
+  border-top: 1px dashed #e4ecf7;
+  padding-top: 16px;
+}
+
+.score-sim-reverse-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12px;
+  color: #6b7a90;
+  margin-bottom: 12px;
+}
+
+.score-sim-message {
+  font-size: 13px;
+  color: #b45309;
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.score-sim-answer {
+  font-size: 15px;
+  color: #1f2d3d;
+  background: #f0f7ff;
+  border: 1px solid #dbeafe;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.score-sim-answer.infeasible {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.score-sim-answer .answer-number {
+  color: #2f6bff;
+  font-size: 20px;
+}
+
+.score-sim-answer.infeasible .answer-number {
+  color: #dc2626;
+}
+
+.score-sim-projected {
+  width: 100%;
+  font-size: 12px;
+  color: #6b7a90;
+  margin-top: 4px;
+}
+
+@media (max-width: 900px) {
+  .score-sim-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .score-sim-grid,
+  .score-sim-result {
+    grid-template-columns: 1fr;
+  }
+}

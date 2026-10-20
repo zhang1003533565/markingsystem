@@ -137,6 +137,7 @@ function App() {
       path === '/student/announcements' ||
       path === '/student/profile' ||
       path === '/student/developer-credits' ||
+      path === '/student/growth-portfolio' ||
       path === '/student/assistant' ||
       path === '/student/ai-chat'
     ) {
@@ -256,6 +257,7 @@ function App() {
           <Route path="/student/home" element={renderStudentRoute('/student/home')} />
           <Route path="/student/scores" element={renderStudentRoute('/student/scores')} />
           <Route path="/student/profile" element={renderStudentRoute('/student/profile')} />
+          <Route path="/student/growth-portfolio" element={renderStudentRoute('/student/growth-portfolio')} />
           <Route path="/student/developer-credits" element={renderStudentRoute('/student/developer-credits')} />
           <Route path="/student/assistant" element={renderStudentRoute('/student/assistant')} />
           <Route path="/student/extra" element={renderStudentRoute('/student/extra')} />

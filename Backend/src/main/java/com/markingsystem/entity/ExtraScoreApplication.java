@@ -159,6 +159,10 @@ public class ExtraScoreApplication {
     @Column(name = "return_reason", length = 1000)
     private String returnReason;
 
+    /** 打回类型：reject=驳回，supplement=退回补充材料；为空时按 reject 语义处理。 */
+    @Column(name = "return_type", length = 20)
+    private String returnType;
+
     @Column(name = "withdrawal_status", length = 20)
     private String withdrawalStatus;
 

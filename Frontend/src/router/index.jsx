@@ -36,6 +36,7 @@ const PhysicalExtraScoreTemplateEditor = lazy(
 const StudentDashboard = lazy(() => import('../pages/Student/Dashboard'))
 const StudentScores = lazy(() => import('../pages/Student/Scores'))
 const StudentProfile = lazy(() => import('../pages/Student/Profile'))
+const StudentGrowthPortfolio = lazy(() => import('../pages/Student/GrowthPortfolio'))
 const ExtraScore = lazy(() => import('../pages/Student/ExtraScore'))
 const ScoreCheck = lazy(() => import('../pages/Student/ScoreCheck'))
 const ExtraScoreProcess = lazy(() => import('../pages/Student/ExtraScoreProcess'))
@@ -297,6 +298,12 @@ export const routes = [
   {
     path: '/student/profile',
     element: <StudentProfile />,
+    protected: true,
+    allowedRoles: ['STUDENT', 'CLASS_COMMITTEE']
+  },
+  {
+    path: '/student/growth-portfolio',
+    element: <StudentGrowthPortfolio />,
     protected: true,
     allowedRoles: ['STUDENT', 'CLASS_COMMITTEE']
   },

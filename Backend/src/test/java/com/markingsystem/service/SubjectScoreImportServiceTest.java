@@ -1,30 +1,41 @@
 package com.markingsystem.service;
 
 import com.markingsystem.dto.SubjectRAINImportResponseDTO;
+import com.markingsystem.entity.ClassInfo;
 import com.markingsystem.entity.ScoreImportBatch;
 import com.markingsystem.entity.ScoreImportItem;
 import com.markingsystem.entity.Student;
+import com.markingsystem.entity.SubjectRAIN;
 import com.markingsystem.entity.SubjectScoreRAIN;
+import com.markingsystem.entity.User;
 import com.markingsystem.exception.SubjectRAINException;
+import com.markingsystem.repository.ClassInfoRepository;
 import com.markingsystem.repository.ScoreImportBatchRepository;
 import com.markingsystem.repository.ScoreImportItemRepository;
 import com.markingsystem.repository.ScoreImportResourceItemRepository;
 import com.markingsystem.repository.StudentRepository;
+import com.markingsystem.repository.SubjectRAINRepository;
+import com.markingsystem.repository.UserRepository;
+import com.markingsystem.util.FileParseHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Sort;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Proxy;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SubjectScoreImportServiceTest {
 
@@ -215,6 +226,156 @@ class SubjectScoreImportServiceTest {
         assertEquals(true, batch.getUndone());
     }
 
+    @Test
+    void validateImportRunsDryRunWithoutWritesAndSummarizesChanges() throws Exception {
+        FileParseHelper.ParsedFileData fileData = new FileParseHelper.ParsedFileData(
+                List.of("学号", "姓名", "班级", "大学英语", "大学数学"),
+                List.of(
+                        List.of("20240001", "张三", "软工2401", "88", "90"),
+                        List.of("20240099", "王五", "软工2401", "60", "")
+                ),
+                "scores.xlsx");
+
+        SubjectRAIN english = subject(1L, "大学英语");
+        Student boundStudent = student(1L, "20240001", "张三", "软工2401");
+        boundStudent.setUserId(11L);
+        User boundUser = user(11L, "20240001");
+        SubjectScoreRAIN existingScore = score(101L, 1L, 70D);
+        existingScore.setUserId(11L);
+        existingScore.setSubjectId(1L);
+        existingScore.setSemester("2025-2026");
+
+        RecordingScoreService scoreService = new RecordingScoreService();
+        scoreService.existingScoresBySemester = Map.of("U_11_1", existingScore);
+
+        SubjectScoreImportService service = dryRunService(
+                fileData,
+                List.of(english),
+                List.of(boundStudent),
+                List.of(boundUser),
+                scoreService
+        );
+
+        SubjectRAINImportResponseDTO response = service.validateImport(
+                multipartFile("scores.xlsx"),
+                "excel",
+                "2025-2026",
+                List.of("大学英语", "大学数学"),
+                "学号",
+                "学号",
+                "姓名",
+                "班级",
+                List.of("软工2401"),
+                List.of("软工2401")
+        );
+
+        Map<String, Object> info = response.getScoreImportInfo();
+        assertEquals(Boolean.TRUE, info.get("dryRun"));
+        assertNull(info.get("importBatchId"));
+        assertEquals(Boolean.FALSE, info.get("undoAvailable"));
+        assertEquals(2, info.get("totalRowCount"));
+        assertEquals(2, info.get("successRowCount"));
+        assertEquals(0, info.get("errorCount"));
+        assertEquals(2L, info.get("createdScoreCount"));
+        assertEquals(1L, info.get("updatedScoreCount"));
+        assertEquals(0L, info.get("unchangedScoreCount"));
+        assertEquals(1L, info.get("createdSubjectCount"));
+        assertEquals(1L, info.get("createdStudentCount"));
+        assertEquals(1L, info.get("createdUserCount"));
+        assertEquals(List.of("大学数学"), response.getNewSubjects());
+
+        // 试算用副本承载新分数，受管实体不能被修改（避免脏数据刷库）
+        assertEquals(70D, existingScore.getScore());
+        // 全程不写库：不保存成绩、不删除成绩
+        assertTrue(scoreService.batchSavedScores.isEmpty());
+        assertNull(scoreService.savedScore);
+        assertTrue(scoreService.deletedScoreIds.isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> details = (List<Map<String, Object>>) info.get("importDetails");
+        assertEquals(2, details.size());
+
+        Map<String, Object> firstRow = details.get(0);
+        assertEquals(2, firstRow.get("rowNumber"));
+        assertEquals("success", firstRow.get("status"));
+        assertEquals(false, firstRow.get("newStudent"));
+        assertEquals(false, firstRow.get("newUser"));
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> firstDeltas = (List<Map<String, Object>>) firstRow.get("scoreDeltas");
+        assertEquals(2, firstDeltas.size());
+        Map<String, Object> englishDelta = findScoreDelta(firstDeltas, "大学英语");
+        assertEquals("updated", englishDelta.get("action"));
+        assertEquals(70D, englishDelta.get("previousScore"));
+        assertEquals(88D, englishDelta.get("newScore"));
+        Map<String, Object> mathDelta = findScoreDelta(firstDeltas, "大学数学");
+        assertEquals("created", mathDelta.get("action"));
+        assertNull(mathDelta.get("previousScore"));
+        assertEquals(90D, mathDelta.get("newScore"));
+
+        Map<String, Object> secondRow = details.get(1);
+        assertEquals(3, secondRow.get("rowNumber"));
+        assertEquals("success", secondRow.get("status"));
+        assertEquals(true, secondRow.get("newStudent"));
+        assertEquals(true, secondRow.get("newUser"));
+    }
+
+    @Test
+    void validateImportLocatesFailedRowsWithoutThrowing() throws Exception {
+        FileParseHelper.ParsedFileData fileData = new FileParseHelper.ParsedFileData(
+                List.of("学号", "姓名", "班级", "大学英语"),
+                List.of(
+                        List.of("", "李四", "软工2401", "70"),
+                        List.of("20240002", "李四", "未知班", "70"),
+                        List.of("20240001", "张三", "软工2401", "88")
+                ),
+                "scores.xlsx");
+
+        Student boundStudent = student(1L, "20240001", "张三", "软工2401");
+        boundStudent.setUserId(11L);
+        RecordingScoreService scoreService = new RecordingScoreService();
+
+        SubjectScoreImportService service = dryRunService(
+                fileData,
+                List.of(subject(1L, "大学英语")),
+                List.of(boundStudent),
+                List.of(user(11L, "20240001")),
+                scoreService
+        );
+
+        SubjectRAINImportResponseDTO response = service.validateImport(
+                multipartFile("scores.xlsx"),
+                "excel",
+                "2025-2026",
+                List.of("大学英语"),
+                "学号",
+                "学号",
+                "姓名",
+                "班级",
+                List.of("软工2401"),
+                List.of("软工2401")
+        );
+
+        Map<String, Object> info = response.getScoreImportInfo();
+        assertEquals(3, info.get("totalRowCount"));
+        assertEquals(2, info.get("errorCount"));
+        @SuppressWarnings("unchecked")
+        List<String> scoreErrors = (List<String>) info.get("scoreErrors");
+        // 错误行完整返回（不再截断），行号定位到 Excel 实际行（表头为第1行）
+        assertEquals(List.of("第2行：学号不能为空", "第3行：未知班 不在本次导入范围内"), scoreErrors);
+        assertEquals(1L, info.get("createdScoreCount"));
+        assertTrue(scoreService.batchSavedScores.isEmpty());
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> details = (List<Map<String, Object>>) info.get("importDetails");
+        assertEquals(3, details.size());
+        assertEquals("failed", details.get(0).get("status"));
+        assertEquals(2, details.get(0).get("rowNumber"));
+        assertEquals("failed", details.get(1).get("status"));
+        assertEquals(3, details.get(1).get("rowNumber"));
+        assertEquals("success", details.get(2).get("status"));
+        assertEquals("20240001", details.get(2).get("studentNo"));
+    }
+
     private SubjectScoreImportService service(
             List<ScoreImportBatch> batches,
             ArrayList<ScoreImportItem> items,
@@ -226,6 +387,72 @@ class SubjectScoreImportServiceTest {
         setField(service, "scoreImportItemRepository", itemRepository(items));
         setField(service, "scoreImportResourceItemRepository", resourceRepository());
         setField(service, "studentRepository", studentRepository(students));
+        setField(service, "subjectScoreRAINServices", scoreService);
+        return service;
+    }
+
+    /** 组装试算（dry-run）专用服务：所有写库入口一旦触发即断言失败。 */
+    private SubjectScoreImportService dryRunService(
+            FileParseHelper.ParsedFileData fileData,
+            List<SubjectRAIN> subjects,
+            List<Student> students,
+            List<User> users,
+            RecordingScoreService scoreService
+    ) throws Exception {
+        SubjectScoreImportService service = new SubjectScoreImportService();
+        setField(service, "fileParseHelper", new FileParseHelper() {
+            @Override
+            public ParsedFileData parse(MultipartFile file) {
+                return fileData;
+            }
+        });
+        setField(service, "subjectRAINRepository", proxy(SubjectRAINRepository.class, (proxy, method, args) -> {
+            if ("save".equals(method.getName())) {
+                throw new AssertionError("试算不应新建科目");
+            }
+            if ("findAll".equals(method.getName())) {
+                return subjects;
+            }
+            return defaultProxyMethod(proxy, method.getName(), args);
+        }));
+        setField(service, "classInfoRepository", proxy(ClassInfoRepository.class, (proxy, method, args) -> {
+            if ("findByName".equals(method.getName())) {
+                return "软工2401".equals(args[0])
+                        ? Optional.of(classInfo(1L, "软工2401", 9L))
+                        : Optional.empty();
+            }
+            if ("save".equals(method.getName())) {
+                throw new AssertionError("试算不应写班级");
+            }
+            return defaultProxyMethod(proxy, method.getName(), args);
+        }));
+        setField(service, "studentRepository", proxy(StudentRepository.class, (proxy, method, args) -> {
+            if ("findByStudentNo".equals(method.getName())) {
+                return students.stream().filter(student -> student.getStudentNo().equals(args[0])).findFirst();
+            }
+            if ("save".equals(method.getName())) {
+                throw new AssertionError("试算不应新建学生");
+            }
+            return defaultProxyMethod(proxy, method.getName(), args);
+        }));
+        setField(service, "userRepository", proxy(UserRepository.class, (proxy, method, args) -> {
+            if ("findById".equals(method.getName())) {
+                return users.stream().filter(user -> user.getId().equals(args[0])).findFirst();
+            }
+            if ("findByUsername".equals(method.getName())) {
+                return users.stream().filter(user -> user.getUsername().equals(args[0])).findFirst();
+            }
+            if ("save".equals(method.getName())) {
+                throw new AssertionError("试算不应新建账号");
+            }
+            return defaultProxyMethod(proxy, method.getName(), args);
+        }));
+        setField(service, "scoreImportBatchRepository", proxy(ScoreImportBatchRepository.class, (proxy, method, args) -> {
+            if ("save".equals(method.getName())) {
+                throw new AssertionError("试算不应创建导入批次");
+            }
+            return defaultProxyMethod(proxy, method.getName(), args);
+        }));
         setField(service, "subjectScoreRAINServices", scoreService);
         return service;
     }
@@ -354,6 +581,45 @@ class SubjectScoreImportServiceTest {
         return item;
     }
 
+    private SubjectRAIN subject(Long id, String name) {
+        SubjectRAIN subject = new SubjectRAIN();
+        subject.setId(id);
+        subject.setSubjectName(name);
+        return subject;
+    }
+
+    private User user(Long id, String username) {
+        User user = new User();
+        user.setId(id);
+        user.setUsername(username);
+        user.setStudentNo(username);
+        return user;
+    }
+
+    private ClassInfo classInfo(Long id, String name, Long teacherId) {
+        ClassInfo classInfo = new ClassInfo();
+        classInfo.setId(id);
+        classInfo.setName(name);
+        classInfo.setTeacherId(teacherId);
+        return classInfo;
+    }
+
+    private MultipartFile multipartFile(String fileName) {
+        return proxy(MultipartFile.class, (proxy, method, args) -> {
+            if ("getOriginalFilename".equals(method.getName())) {
+                return fileName;
+            }
+            return defaultProxyMethod(proxy, method.getName(), args);
+        });
+    }
+
+    private Map<String, Object> findScoreDelta(List<Map<String, Object>> deltas, String subjectName) {
+        return deltas.stream()
+                .filter(delta -> subjectName.equals(delta.get("subjectName")))
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("缺少科目变更明细: " + subjectName));
+    }
+
     private Student student(Long id, String studentNo, String name, String className) {
         Student student = new Student();
         student.setId(id);
@@ -377,8 +643,21 @@ class SubjectScoreImportServiceTest {
 
     private static class RecordingScoreService extends SubjectScoreRAINServices {
         private final List<Long> deletedScoreIds = new ArrayList<>();
+        private final List<SubjectScoreRAIN> batchSavedScores = new ArrayList<>();
+        private Map<String, SubjectScoreRAIN> existingScoresBySemester = Map.of();
         private SubjectScoreRAIN existingScore;
         private SubjectScoreRAIN savedScore;
+
+        @Override
+        public Map<String, SubjectScoreRAIN> loadExistingScores(String semester) {
+            // 与真实实现一致：返回可修改副本（导入过程会往里回填新成绩）
+            return new HashMap<>(existingScoresBySemester);
+        }
+
+        @Override
+        public void batchSave(List<SubjectScoreRAIN> scores) {
+            batchSavedScores.addAll(scores);
+        }
 
         @Override
         public void deleteById(Long id) {

@@ -180,6 +180,88 @@ public class SubjectRAINController {
         }
     }
 
+    /**
+     * 导入前试算校验（dry-run）：执行与真实导入相同的校验与变更推演，但全程不写库。
+     * 返回结构与 /import 一致（scoreImportInfo.dryRun=true），供前端展示数据预览与错误行定位。
+     */
+    @PostMapping("/import/validate")
+    public ResponseEntity<SubjectRAINImportResponseDTO> validateImport(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("fileType") String fileType,
+            @RequestParam("semester") String semester,
+            @RequestParam("subjects") List<String> subjects,
+            @RequestParam("accountColumn") String accountColumn,
+            @RequestParam("passwordColumn") String passwordColumn,
+            @RequestParam("nameColumn") String nameColumn,
+            @RequestParam("classColumn") String classColumn,
+            @RequestParam("classValues") List<String> classValues,
+            @RequestParam("classNames") List<String> classNames) {
+
+        try {
+            if (file.isEmpty()) {
+                SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+                response.setErrorMessage("上传的文件为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (subjects == null || subjects.isEmpty()) {
+                SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+                response.setErrorMessage("科目列表为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (semester == null || semester.isEmpty()) {
+                SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+                response.setErrorMessage("学期不能为空");
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (accountColumn == null || accountColumn.isBlank()
+                    || passwordColumn == null || passwordColumn.isBlank()
+                    || nameColumn == null || nameColumn.isBlank()) {
+                SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+                response.setErrorMessage("账号字段、密码字段、姓名字段必须由用户明确选择");
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (classColumn == null || classColumn.isBlank()) {
+                SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+                response.setErrorMessage("必须指定班级字段");
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (classValues == null || classValues.isEmpty()) {
+                SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+                response.setErrorMessage("必须至少选择一个分类值");
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (classNames == null || classNames.isEmpty()) {
+                SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+                response.setErrorMessage("必须至少选择一个系统班级");
+                return ResponseEntity.badRequest().body(response);
+            }
+            if (classValues.size() != classNames.size()) {
+                SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+                response.setErrorMessage("分类值与系统班级数量不一致");
+                return ResponseEntity.badRequest().body(response);
+            }
+
+            SubjectRAINImportResponseDTO response = subjectScoreImportService.validateImport(
+                    file,
+                    fileType,
+                    semester,
+                    subjects,
+                    accountColumn,
+                    passwordColumn,
+                    nameColumn,
+                    classColumn,
+                    classValues,
+                    classNames
+            );
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
+            response.setErrorMessage("校验失败: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
     @GetMapping("/import/batches")
     public ResponseEntity<Map<String, Object>> listImportBatches(
             @RequestHeader(value = "X-User-Id", required = false) String userId,

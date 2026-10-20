@@ -671,3 +671,28 @@
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* 审核弹窗快捷意见标签 */
+.quick-comment-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.quick-comment-tag {
+  cursor: pointer;
+  border-radius: 14px;
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+  transition: all 0.15s ease;
+  user-select: none;
+  margin-inline-end: 0;
+}
+
+.quick-comment-tag:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: #0284c7;
+}

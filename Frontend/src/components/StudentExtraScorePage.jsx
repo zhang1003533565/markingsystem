@@ -231,6 +231,10 @@ function getStatusMeta(record) {
   if (record?.status === 'pending' && record?.reviewStageLabel) {
     return { ...fallback, label: record.reviewStageLabel }
   }
+  // 审核人退回并要求补充材料：状态仍为已打回，但文案引导学生补材料后重新提交
+  if (record?.status === 'returned' && record?.returnType === 'supplement') {
+    return { label: '退回补材料', className: 'returned' }
+  }
   return fallback
 }
 
@@ -1122,7 +1126,7 @@ function StudentExtraScorePage({
 
             {record.returnReason ? (
               <div className="extra-score-record-reason compact">
-                {record.recordReviewResult === 'approved' ? '整包退回说明' : '单条问题'}：
+                {record.recordReviewResult === 'approved' ? '整包退回说明' : record.returnType === 'supplement' ? '补充要求' : '单条问题'}：
                 {record.returnReason}
               </div>
             ) : null}
@@ -1544,7 +1548,7 @@ function StudentExtraScorePage({
                               { value: 'draft', label: '草稿' },
                               { value: 'pending', label: '审核中' },
                               { value: 'approved', label: '已通过' },
-                              { value: 'returned', label: '已打回' },
+                              { value: 'returned', label: '已打回/退回补材料' },
                               { value: 'rejected', label: '已拒绝' },
                             ]}
                           />
@@ -1584,7 +1588,7 @@ function StudentExtraScorePage({
                           {draftCount > 0 ? (
                             <span>
                               {returnedCount > 0
-                                ? `其中 ${returnedCount} 条被退回，请修改后重新提交。`
+                                ? `其中 ${returnedCount} 条被退回，请修改或补充材料后重新提交。`
                                 : '草稿或需要修改的记录尚未提交。'}
                             </span>
                           ) : (

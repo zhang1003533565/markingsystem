@@ -32,6 +32,7 @@ import {
 import { getStoredUser, withAuthToken } from '../utils/authStorage'
 import {
   batchApproveExtraScoreApplications,
+  batchReturnExtraScoreApplications,
   committeeReviewExtraScoreApplication,
   deleteExtraScoreTeacherImportRecord,
   exportExtraScoreProofImages,
@@ -58,6 +59,15 @@ import {
   summarizeReviewWorkbenchClasses,
 } from '../utils/extraScoreReviewWorkbench'
 import './ExtraScoreReviewPanel.css'
+
+// 审核弹窗快捷意见模板：点击即填入审核意见，可叠加多条
+const quickCommentPresets = {
+  approve: ['材料齐全，符合加分细则', '与证明材料一致，同意'],
+  return: ['不符合加分细则，不予通过', '证明材料无效或已过期', '重复提交，已有相同加分记录', '加分项选择不正确', '分数与证明材料不一致'],
+  supplement: ['请上传证书原件照片（需含盖章页）', '证明材料不清晰，请重新拍摄上传', '请补充获奖证明或红头文件', '缺少指导老师或单位盖章页', '请补充活动参与证明材料'],
+}
+
+const buildPresetComment = (current, preset) => (current ? `${current}；${preset}` : preset)
 
 const { Text } = Typography
 const { TextArea } = Input
@@ -284,6 +294,7 @@ function ExtraScoreReviewPanel({
     record: null,
   })
   const [submitting, setSubmitting] = useState(false)
+  const [batchModal, setBatchModal] = useState({ open: false, action: 'return', comment: '', ids: [] })
   const [exporting, setExporting] = useState(false)
   const [forcingTeacherStage, setForcingTeacherStage] = useState(false)
 
@@ -703,7 +714,12 @@ function ExtraScoreReviewPanel({
       return { key: 'approved', label: '已通过', hint: '审核流程已完成' }
     }
     if (status === 'returned' || status === 'rejected') {
-      return { key: 'returned', label: '已打回', hint: record?.returnReason || '等待学生补充' }
+      const isSupplement = record?.returnType === 'supplement'
+      return {
+        key: 'returned',
+        label: isSupplement ? '退回补材料' : '已打回',
+        hint: record?.returnReason || (isSupplement ? '等待学生补充材料' : '等待学生补充'),
+      }
     }
     if (reviewActionable) {
       return {
@@ -1059,6 +1075,9 @@ function ExtraScoreReviewPanel({
                 </Button>
                 <Button danger type="text" size="small" onClick={() => openReviewModal(record, 'return')}>
                   驳回
+                </Button>
+                <Button type="text" size="small" onClick={() => openReviewModal(record, 'supplement')}>
+                  退回补材料
                 </Button>
               </>
             ) : null}
@@ -1569,6 +1588,15 @@ function ExtraScoreReviewPanel({
     }
   }
 
+  const collectBatchActionable = () => {
+    const selectedRecords = studentApplications.filter((record) => selectedRowKeys.includes(record.id))
+    // explainCannotApprove 实际是「当前角色可审」守卫：待审 + 当前阶段 + 无待处理撤回
+    const actionableIds = selectedRecords.filter((record) => !explainCannotApprove(record)).map((record) => record.id)
+    return { selectedRecords, actionableIds }
+  }
+
+  const closeBatchModal = () => setBatchModal({ open: false, action: 'return', comment: '', ids: [] })
+
   const handleBatchAction = async (action) => {
     if (selectedRowKeys.length === 0) {
       message.info('请先选择要操作的申请')
@@ -1578,24 +1606,24 @@ function ExtraScoreReviewPanel({
       message.info('管理员仅可查看审核进度，不能批量审核')
       return
     }
+    const { selectedRecords, actionableIds } = collectBatchActionable()
+    const firstReason = selectedRecords.map(explainCannotApprove).find(Boolean)
     if (action !== 'approve') {
-      message.info('批量驳回需要逐条填写原因，请单条处理')
+      // 批量驳回/退回补材料：先弹窗统一填写意见，再批量提交
+      if (!actionableIds.length) {
+        message.info(firstReason || '选中的记录当前不能批量处理')
+        return
+      }
+      setBatchModal({ open: true, action, comment: '', ids: actionableIds })
       return
     }
-    const approvableIds = studentApplications
-      .filter((record) => selectedRowKeys.includes(record.id) && canCurrentRoleApprove(record))
-      .map((record) => record.id)
-    if (!approvableIds.length) {
-      const selectedRecords = studentApplications.filter((record) =>
-        selectedRowKeys.includes(record.id),
-      )
-      const firstReason = selectedRecords.map(explainCannotApprove).find(Boolean)
+    if (!actionableIds.length) {
       message.info(firstReason || '选中的记录当前不能批量通过')
       return
     }
     setSubmitting(true)
     try {
-      const response = await batchApproveExtraScoreApplications(approvableIds)
+      const response = await batchApproveExtraScoreApplications(actionableIds)
       const data = response?.data || {}
       if (data.failedCount > 0) {
         message.warning(
@@ -1614,6 +1642,47 @@ function ExtraScoreReviewPanel({
       }
     } catch (error) {
       message.error(error?.response?.data?.message || '批量通过失败')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const executeBatchReturn = async () => {
+    const ids = batchModal.ids || []
+    if (!ids.length) {
+      closeBatchModal()
+      return
+    }
+    const comment = batchModal.comment.trim()
+    if (!comment) {
+      message.warning(batchModal.action === 'supplement' ? '请填写退回补充材料的说明' : '请填写驳回原因')
+      return
+    }
+    setSubmitting(true)
+    try {
+      const response = await batchReturnExtraScoreApplications({
+        applicationIds: ids,
+        action: batchModal.action,
+        comment,
+      })
+      const data = response?.data || {}
+      const actionLabel = data.action === 'supplement' ? '退回补充材料' : '批量驳回'
+      if (data.failedCount > 0) {
+        message.warning(`${actionLabel}完成：成功 ${data.successCount || 0} 条，跳过 ${data.failedCount} 条`)
+      } else {
+        message.success(`${actionLabel}成功：${data.successCount || 0} 条`)
+      }
+      setSelectedRowKeys([])
+      closeBatchModal()
+      await fetchRecords()
+      if (selectedClass) {
+        await fetchClassStudents(selectedClass)
+      }
+      if (selectedStudentGroup) {
+        await fetchStudentApplications(selectedStudentGroup)
+      }
+    } catch (error) {
+      message.error(error?.response?.data?.message || '批量处理失败')
     } finally {
       setSubmitting(false)
     }
@@ -1724,9 +1793,13 @@ function ExtraScoreReviewPanel({
     }
     if (
       reviewModal.action === 'approve' &&
-      (reviewModal.reviewScore === null || reviewModal.reviewScore === undefined)
+      (reviewModal.reviewScore === null || reviewModal.reviewScore === undefined || reviewModal.reviewScore === '')
     ) {
       message.warning('通过时请填写审核分数')
+      return
+    }
+    if (reviewModal.action !== 'approve' && !reviewModal.comment.trim()) {
+      message.warning(reviewModal.action === 'supplement' ? '请填写退回补充材料的说明' : '请填写驳回原因')
       return
     }
 
@@ -1742,7 +1815,13 @@ function ExtraScoreReviewPanel({
       } else if (isTeacher) {
         await teacherReviewExtraScoreApplication(reviewModal.record.id, payload)
       }
-      message.success(reviewModal.action === 'approve' ? '审核通过' : '已打回该申请')
+      message.success(
+        reviewModal.action === 'approve'
+          ? '审核通过'
+          : reviewModal.action === 'supplement'
+            ? '已退回，待学生补充材料'
+            : '已打回该申请',
+      )
       setSelectedRowKeys((keys) =>
         keys.filter((key) => String(key) !== String(reviewModal.record.id)),
       )
@@ -1783,7 +1862,7 @@ function ExtraScoreReviewPanel({
     },
   }
   const selectionStatusText = selectedRowKeys.length
-    ? `已选择 ${selectedRowKeys.length} 条可批量通过申请`
+    ? `已选择 ${selectedRowKeys.length} 条可批量审核的申请`
     : studentApplications.some(isWithdrawalPending)
       ? '撤回待处理记录不进入批量审核'
       : '已选择 0 条待处理申请'
@@ -2201,6 +2280,12 @@ function ExtraScoreReviewPanel({
                     >
                       批量通过
                     </Button>
+                    <Button danger onClick={() => handleBatchAction('return')}>
+                      批量驳回
+                    </Button>
+                    <Button onClick={() => handleBatchAction('supplement')}>
+                      批量退回补材料
+                    </Button>
                     <Button onClick={() => setSelectedRowKeys([])}>取消选择</Button>
                   </div>
                 </div>
@@ -2267,6 +2352,12 @@ function ExtraScoreReviewPanel({
                       onClick={() => handleBatchAction('return')}
                     >
                       批量驳回
+                    </Button>
+                    <Button
+                      className="review-batch-btn neutral"
+                      onClick={() => handleBatchAction('supplement')}
+                    >
+                      批量退回补材料
                     </Button>
                     <Button
                       className="review-batch-btn neutral"
@@ -2429,12 +2520,24 @@ function ExtraScoreReviewPanel({
 
       <Modal
         className="review-modal"
-        title={reviewModal.action === 'approve' ? '确认通过申请' : '打回申请'}
+        title={
+          reviewModal.action === 'approve'
+            ? '确认通过申请'
+            : reviewModal.action === 'supplement'
+              ? '退回补充材料'
+              : '打回申请（驳回）'
+        }
         open={reviewModal.open}
         confirmLoading={submitting}
         onCancel={closeReviewModal}
         onOk={handleSubmitReview}
-        okText={reviewModal.action === 'approve' ? '确认通过' : '确认打回'}
+        okText={
+          reviewModal.action === 'approve'
+            ? '确认通过'
+            : reviewModal.action === 'supplement'
+              ? '确认退回'
+              : '确认打回'
+        }
         cancelText="取消"
         width={600}
       >
@@ -2542,17 +2645,95 @@ function ExtraScoreReviewPanel({
             <label style={{ fontWeight: 500, display: 'block', marginBottom: 8 }}>
               {reviewModal.action === 'approve' ? (
                 '审核备注 (可选)'
+              ) : reviewModal.action === 'supplement' ? (
+                <>
+                  补充材料说明 <Text type="danger">*</Text>
+                </>
               ) : (
                 <>
                   驳回原因 <Text type="danger">*</Text>
                 </>
               )}
             </label>
+            {(quickCommentPresets[reviewModal.action] || []).length > 0 && (
+              <div className="quick-comment-tags">
+                {(quickCommentPresets[reviewModal.action] || []).map((preset) => (
+                  <Tag
+                    key={preset}
+                    className="quick-comment-tag"
+                    onClick={() =>
+                      setReviewModal((prev) => ({ ...prev, comment: buildPresetComment(prev.comment, preset) }))
+                    }
+                  >
+                    {preset}
+                  </Tag>
+                ))}
+              </div>
+            )}
             <TextArea
               rows={4}
               value={reviewModal.comment}
-              placeholder={reviewModal.action === 'approve' ? '可选填写审核备注' : '请填写驳回原因'}
+              placeholder={
+                reviewModal.action === 'approve'
+                  ? '可选填写审核备注，点击上方标签可快速填入'
+                  : reviewModal.action === 'supplement'
+                    ? '请说明需要补充的材料，点击上方标签可快速填入'
+                    : '请填写驳回原因，点击上方标签可快速填入'
+              }
               onChange={(e) => setReviewModal((prev) => ({ ...prev, comment: e.target.value }))}
+            />
+          </div>
+        </Space>
+      </Modal>
+
+      <Modal
+        className="review-modal"
+        title={batchModal.action === 'supplement' ? '批量退回补充材料' : '批量驳回'}
+        open={batchModal.open}
+        confirmLoading={submitting}
+        onCancel={closeBatchModal}
+        onOk={executeBatchReturn}
+        okText={`${batchModal.action === 'supplement' ? '确认退回' : '确认驳回'}（${(batchModal.ids || []).length} 条）`}
+        cancelText="取消"
+        width={600}
+      >
+        <Space orientation="vertical" size={16} style={{ width: '100%' }}>
+          <Text type="secondary">
+            将对已选中的 {(batchModal.ids || []).length} 条申请统一
+            {batchModal.action === 'supplement'
+              ? '退回补充材料，学生补充后可重新提交。'
+              : '驳回，学生可修改后重新提交。'}
+          </Text>
+          <div>
+            <label style={{ fontWeight: 500, display: 'block', marginBottom: 8 }}>
+              {batchModal.action === 'supplement' ? (
+                <>
+                  补充材料说明 <Text type="danger">*</Text>
+                </>
+              ) : (
+                <>
+                  驳回原因 <Text type="danger">*</Text>
+                </>
+              )}
+            </label>
+            <div className="quick-comment-tags">
+              {(quickCommentPresets[batchModal.action] || []).map((preset) => (
+                <Tag
+                  key={preset}
+                  className="quick-comment-tag"
+                  onClick={() =>
+                    setBatchModal((prev) => ({ ...prev, comment: buildPresetComment(prev.comment, preset) }))
+                  }
+                >
+                  {preset}
+                </Tag>
+              ))}
+            </div>
+            <TextArea
+              rows={4}
+              value={batchModal.comment}
+              placeholder="将作为统一审核意见写入每条记录，点击上方标签可快速填入"
+              onChange={(e) => setBatchModal((prev) => ({ ...prev, comment: e.target.value }))}
             />
           </div>
         </Space>

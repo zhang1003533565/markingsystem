@@ -20,6 +20,7 @@ function StudentPortalHeader({ activePath = '', user = {}, userRole, onLogout })
     const items = [
       { key: 'home', label: '首页', path: '/student/home', icon: 'home' },
       { key: 'scores', label: '成绩', path: '/student/scores', icon: 'scores' },
+      { key: 'growth-portfolio', label: '成长档案', path: '/student/growth-portfolio', icon: 'analysis', matchPrefix: '/student/growth-portfolio' },
       { key: 'announcements', label: '公告', path: '/student/announcements', icon: 'announcement' },
       {
         key: 'extra',

@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -209,8 +210,49 @@ public class SubjectScoreImportService {
             List<String> classNames,
             Long createdByUserId,
             String createdByRole) throws IOException {
+        return doImportSubjectsAndScores(file, fileType, semester, selectedSubjectNames,
+                accountColumn, passwordColumn, nameColumn, classColumn, classValues, classNames,
+                createdByUserId, createdByRole, false);
+    }
 
-        log.info("开始导入科目和成绩: subjectCount={}, fileType={}, semester={}",
+    /**
+     * 导入前试算校验（dry-run）：执行完整的导入校验与变更推演，但全程不写库。
+     * 返回与真实导入一致的 scoreImportInfo/importDetails 结构，供前端「数据预览」展示。
+     */
+    @Transactional(readOnly = true)
+    public SubjectRAINImportResponseDTO validateImport(
+            MultipartFile file,
+            String fileType,
+            String semester,
+            List<String> selectedSubjectNames,
+            String accountColumn,
+            String passwordColumn,
+            String nameColumn,
+            String classColumn,
+            List<String> classValues,
+            List<String> classNames) throws IOException {
+        return doImportSubjectsAndScores(file, fileType, semester, selectedSubjectNames,
+                accountColumn, passwordColumn, nameColumn, classColumn, classValues, classNames,
+                null, null, true);
+    }
+
+    private SubjectRAINImportResponseDTO doImportSubjectsAndScores(
+            MultipartFile file,
+            String fileType,
+            String semester,
+            List<String> selectedSubjectNames,
+            String accountColumn,
+            String passwordColumn,
+            String nameColumn,
+            String classColumn,
+            List<String> classValues,
+            List<String> classNames,
+            Long createdByUserId,
+            String createdByRole,
+            boolean dryRun) throws IOException {
+
+        log.info("{}: subjectCount={}, fileType={}, semester={}",
+                dryRun ? "开始试算校验科目和成绩" : "开始导入科目和成绩",
                 selectedSubjectNames.size(), fileType, semester);
 
         SubjectRAINImportResponseDTO response = new SubjectRAINImportResponseDTO();
@@ -261,19 +303,25 @@ public class SubjectScoreImportService {
                 classValueToNameMap.put(normalizedClassValues.get(i), normalizedClassNames.get(i));
             }
 
-            ScoreImportBatch importBatch = new ScoreImportBatch();
-            importBatch.setId(UUID.randomUUID().toString());
-            importBatch.setSemester(semester);
-            importBatch.setClassName(String.join("，", normalizedClassNames));
-            importBatch.setCreatedByUserId(createdByUserId);
-            importBatch.setCreatedByRole(normalizeRole(createdByRole));
-            importBatch.setCreatedByName(resolveUserDisplayName(createdByUserId));
-            scoreImportBatchRepository.save(importBatch);
+            ScoreImportBatch importBatch = null;
+            if (!dryRun) {
+                importBatch = new ScoreImportBatch();
+                importBatch.setId(UUID.randomUUID().toString());
+                importBatch.setSemester(semester);
+                importBatch.setClassName(String.join("，", normalizedClassNames));
+                importBatch.setCreatedByUserId(createdByUserId);
+                importBatch.setCreatedByRole(normalizeRole(createdByRole));
+                importBatch.setCreatedByName(resolveUserDisplayName(createdByUserId));
+                scoreImportBatchRepository.save(importBatch);
+            }
 
             List<ImportResourceChange> resourceChanges = new ArrayList<>();
             Set<String> resourceKeys = new HashSet<>();
+            List<String> newSubjectNames = new ArrayList<>();
+            AtomicLong fakeIdSequence = new AtomicLong(-1L);
 
-            Map<String, SubjectRAIN> subjectMap = syncSubjects(selectedSubjectNames, resourceChanges, resourceKeys);
+            Map<String, SubjectRAIN> subjectMap = syncSubjects(selectedSubjectNames, resourceChanges, resourceKeys,
+                    dryRun, fakeIdSequence, newSubjectNames);
             log.info("科目同步完成: subjectCount={}", subjectMap.size());
 
             Map<String, SubjectScoreRAIN> existingScores = subjectScoreRAINServices.loadExistingScores(semester);
@@ -293,7 +341,9 @@ public class SubjectScoreImportService {
                     resourceChanges,
                     resourceKeys,
                     errors,
-                    importDetails
+                    importDetails,
+                    dryRun,
+                    fakeIdSequence
             );
 
             List<SubjectScoreRAIN> scoresToSave = scoreChanges.stream()
@@ -301,13 +351,13 @@ public class SubjectScoreImportService {
                     .map(ImportScoreChange::getScore)
                     .toList();
 
-            if (!scoresToSave.isEmpty()) {
+            if (!dryRun && !scoresToSave.isEmpty()) {
                 subjectScoreRAINServices.batchSave(scoresToSave);
                 persistImportItems(importBatch.getId(), semester, scoreChanges);
                 log.info("保存成绩记录: count={}", scoresToSave.size());
             }
 
-            if (!resourceChanges.isEmpty()) {
+            if (!dryRun && !resourceChanges.isEmpty()) {
                 persistResourceItems(importBatch.getId(), resourceChanges);
             }
 
@@ -315,9 +365,15 @@ public class SubjectScoreImportService {
             long createdCount = scoreChanges.stream().filter(change -> change.getActionType() == ScoreImportItem.ActionType.CREATED).count();
             long updatedCount = scoreChanges.stream().filter(change -> change.getActionType() == ScoreImportItem.ActionType.UPDATED).count();
             long unchangedCount = scoreChanges.stream().filter(change -> change.getActionType() == null).count();
-            long createdSubjectCount = resourceChanges.stream().filter(change -> change.getResourceType() == ScoreImportResourceItem.ResourceType.SUBJECT).count();
-            long createdStudentCount = resourceChanges.stream().filter(change -> change.getResourceType() == ScoreImportResourceItem.ResourceType.STUDENT).count();
-            long createdUserCount = resourceChanges.stream().filter(change -> change.getResourceType() == ScoreImportResourceItem.ResourceType.USER).count();
+            long createdSubjectCount = dryRun
+                    ? newSubjectNames.size()
+                    : resourceChanges.stream().filter(change -> change.getResourceType() == ScoreImportResourceItem.ResourceType.SUBJECT).count();
+            long createdStudentCount = dryRun
+                    ? countFlaggedDetails(importDetails, "newStudent")
+                    : resourceChanges.stream().filter(change -> change.getResourceType() == ScoreImportResourceItem.ResourceType.STUDENT).count();
+            long createdUserCount = dryRun
+                    ? countFlaggedDetails(importDetails, "newUser")
+                    : resourceChanges.stream().filter(change -> change.getResourceType() == ScoreImportResourceItem.ResourceType.USER).count();
 
             List<String> updateMessages = scoreChanges.stream()
                     .filter(change -> change.getActionType() == ScoreImportItem.ActionType.UPDATED)
@@ -337,7 +393,7 @@ public class SubjectScoreImportService {
             scoreImportInfo.put("successRowCount", successRowCount);
             scoreImportInfo.put("totalScoreCount", createdCount + updatedCount);
             scoreImportInfo.put("errorCount", errors.size());
-            scoreImportInfo.put("scoreErrors", errors.stream().limit(20).toList());
+            scoreImportInfo.put("scoreErrors", new ArrayList<>(errors));
             scoreImportInfo.put("createdScoreCount", createdCount);
             scoreImportInfo.put("updatedScoreCount", updatedCount);
             scoreImportInfo.put("unchangedScoreCount", unchangedCount);
@@ -346,20 +402,23 @@ public class SubjectScoreImportService {
             scoreImportInfo.put("createdUserCount", createdUserCount);
             scoreImportInfo.put("updatedScoreSubjects", updateMessages);
             scoreImportInfo.put("unchangedScoreSubjects", unchangedMessages);
-            scoreImportInfo.put("importBatchId", importBatch.getId());
+            scoreImportInfo.put("dryRun", dryRun);
+            scoreImportInfo.put("importBatchId", importBatch == null ? null : importBatch.getId());
             scoreImportInfo.put(
                     "undoAvailable",
-                    createdCount > 0 || updatedCount > 0 || createdSubjectCount > 0 || createdStudentCount > 0 || createdUserCount > 0
+                    !dryRun && (createdCount > 0 || updatedCount > 0 || createdSubjectCount > 0 || createdStudentCount > 0 || createdUserCount > 0)
             );
             scoreImportInfo.put("importDetails", importDetails);
 
-            importBatch.setCreatedScoreCount((int) createdCount);
-            importBatch.setUpdatedScoreCount((int) updatedCount);
-            importBatch.setUnchangedScoreCount((int) unchangedCount);
-            importBatch.setErrorCount(errors.size());
-            scoreImportBatchRepository.save(importBatch);
+            if (!dryRun) {
+                importBatch.setCreatedScoreCount((int) createdCount);
+                importBatch.setUpdatedScoreCount((int) updatedCount);
+                importBatch.setUnchangedScoreCount((int) unchangedCount);
+                importBatch.setErrorCount(errors.size());
+                scoreImportBatchRepository.save(importBatch);
+            }
 
-            response.setNewSubjects(selectedSubjectNames);
+            response.setNewSubjects(dryRun ? newSubjectNames : selectedSubjectNames);
             response.setFailedSubjects(errors);
             response.setScoreImportInfo(scoreImportInfo);
 
@@ -414,7 +473,10 @@ public class SubjectScoreImportService {
     private Map<String, SubjectRAIN> syncSubjects(
             List<String> selectedSubjectNames,
             List<ImportResourceChange> resourceChanges,
-            Set<String> resourceKeys) {
+            Set<String> resourceKeys,
+            boolean dryRun,
+            AtomicLong fakeIdSequence,
+            List<String> newSubjectNames) {
         Map<String, SubjectRAIN> subjectMap = new HashMap<>();
         List<SubjectRAIN> allSubjects = subjectRAINRepository.findAll();
         Map<String, SubjectRAIN> existingSubjectMap = allSubjects.stream()
@@ -433,19 +495,29 @@ public class SubjectScoreImportService {
             String key = normalizedName.toLowerCase();
             SubjectRAIN subject = existingSubjectMap.get(key);
             if (subject == null) {
-                subject = new SubjectRAIN();
-                subject.setSubjectName(normalizedName);
-                subject.setCategory(SubjectRAIN.Category.SUBJECT);
-                subject = subjectRAINRepository.save(subject);
-                existingSubjectMap.put(key, subject);
-                recordCreatedResource(
-                        resourceChanges,
-                        resourceKeys,
-                        ScoreImportResourceItem.ResourceType.SUBJECT,
-                        subject.getId(),
-                        normalizedName
-                );
-                log.debug("新建科目: {}", normalizedName);
+                if (dryRun) {
+                    // 试算模式：仅在内存中模拟新建科目（负数 id），不落库
+                    subject = new SubjectRAIN();
+                    subject.setId(fakeIdSequence.decrementAndGet());
+                    subject.setSubjectName(normalizedName);
+                    subject.setCategory(SubjectRAIN.Category.SUBJECT);
+                    existingSubjectMap.put(key, subject);
+                    newSubjectNames.add(normalizedName);
+                } else {
+                    subject = new SubjectRAIN();
+                    subject.setSubjectName(normalizedName);
+                    subject.setCategory(SubjectRAIN.Category.SUBJECT);
+                    subject = subjectRAINRepository.save(subject);
+                    existingSubjectMap.put(key, subject);
+                    recordCreatedResource(
+                            resourceChanges,
+                            resourceKeys,
+                            ScoreImportResourceItem.ResourceType.SUBJECT,
+                            subject.getId(),
+                            normalizedName
+                    );
+                    log.debug("新建科目: {}", normalizedName);
+                }
             }
 
             subjectMap.put(normalizedName, subject);
@@ -468,10 +540,13 @@ public class SubjectScoreImportService {
             List<ImportResourceChange> resourceChanges,
             Set<String> resourceKeys,
             List<String> errors,
-            List<Map<String, Object>> importDetails) {
+            List<Map<String, Object>> importDetails,
+            boolean dryRun,
+            AtomicLong fakeIdSequence) {
 
         List<ImportScoreChange> scoreChanges = new ArrayList<>();
         Map<String, Student> studentCache = new HashMap<>();
+        Map<String, User> fakeUserCache = new HashMap<>();
 
         int studentNoIndex = fileData.getHeaderIndex("学号");
         int nameIndex = fileData.getHeaderIndex(nameColumn);
@@ -514,22 +589,30 @@ public class SubjectScoreImportService {
                     continue;
                 }
 
-                boolean studentExisted = studentRepository.findByStudentNo(studentNo).isPresent();
-                Student student = studentService.getOrCreateStudent(
-                        studentNo,
-                        studentName,
-                        importClassName,
-                        classInfo.getTeacherId(),
-                        studentCache
-                );
-                if (!studentExisted) {
-                    recordCreatedResource(
-                            resourceChanges,
-                            resourceKeys,
-                            ScoreImportResourceItem.ResourceType.STUDENT,
-                            student.getId(),
-                            studentNo
+                boolean rowNewStudent = false;
+                Student student;
+                if (dryRun) {
+                    student = resolveStudentForPreview(studentNo, studentName, importClassName,
+                            classInfo.getTeacherId(), studentCache, fakeIdSequence);
+                    rowNewStudent = student.getId() != null && student.getId() < 0;
+                } else {
+                    boolean studentExisted = studentRepository.findByStudentNo(studentNo).isPresent();
+                    student = studentService.getOrCreateStudent(
+                            studentNo,
+                            studentName,
+                            importClassName,
+                            classInfo.getTeacherId(),
+                            studentCache
                     );
+                    if (!studentExisted) {
+                        recordCreatedResource(
+                                resourceChanges,
+                                resourceKeys,
+                                ScoreImportResourceItem.ResourceType.STUDENT,
+                                student.getId(),
+                                studentNo
+                        );
+                    }
                 }
 
                 String username = accountIndex >= 0 ? FileParseHelper.getStringValue(row.get(accountIndex)) : "";
@@ -552,20 +635,28 @@ public class SubjectScoreImportService {
                     continue;
                 }
 
-                boolean userExisted = (student.getUserId() != null && userRepository.findById(student.getUserId()).isPresent())
-                        || userRepository.findByUsername(username).isPresent();
-                User user = studentAccountSyncService.ensureStudentAccount(student, username, initialPassword, nickname);
-                if (!userExisted) {
-                    recordCreatedResource(
-                            resourceChanges,
-                            resourceKeys,
-                            ScoreImportResourceItem.ResourceType.USER,
-                            user.getId(),
-                            user.getUsername()
-                    );
+                boolean rowNewUser = false;
+                User user;
+                if (dryRun) {
+                    user = resolveUserForPreview(student, username, fakeUserCache, fakeIdSequence);
+                    rowNewUser = user.getId() != null && user.getId() < 0;
+                } else {
+                    boolean userExisted = (student.getUserId() != null && userRepository.findById(student.getUserId()).isPresent())
+                            || userRepository.findByUsername(username).isPresent();
+                    user = studentAccountSyncService.ensureStudentAccount(student, username, initialPassword, nickname);
+                    if (!userExisted) {
+                        recordCreatedResource(
+                                resourceChanges,
+                                resourceKeys,
+                                ScoreImportResourceItem.ResourceType.USER,
+                                user.getId(),
+                                user.getUsername()
+                        );
+                    }
                 }
 
-                processSubjectScores(row, fileData, student, user, subjectMap, existingScores, semester, scoreChanges, rowNumber, importClassName, importDetails);
+                processSubjectScores(row, fileData, student, user, subjectMap, existingScores, semester, scoreChanges, rowNumber, importClassName, importDetails,
+                        dryRun, rowNewStudent, rowNewUser);
             } catch (Exception e) {
                 errors.add("第" + rowNumber + "行导入失败: " + e.getMessage());
                 importDetails.add(buildImportDetail(rowNumber, "", "", importClassName, null, null, "failed", e.getMessage()));
@@ -586,7 +677,10 @@ public class SubjectScoreImportService {
             List<ImportScoreChange> scoreChanges,
             int rowNumber,
             String className,
-            List<Map<String, Object>> importDetails) {
+            List<Map<String, Object>> importDetails,
+            boolean dryRun,
+            boolean rowNewStudent,
+            boolean rowNewUser) {
 
         String studentNo = student == null ? "" : student.getStudentNo();
         String studentName = student == null ? "" : student.getName();
@@ -596,6 +690,7 @@ public class SubjectScoreImportService {
         List<String> createdSubjects = new ArrayList<>();
         List<String> updatedSubjects = new ArrayList<>();
         List<String> unchangedSubjects = new ArrayList<>();
+        List<Map<String, Object>> scoreDeltas = new ArrayList<>();
 
         for (Map.Entry<String, SubjectRAIN> entry : subjectMap.entrySet()) {
             String subjectName = entry.getKey();
@@ -621,12 +716,21 @@ public class SubjectScoreImportService {
                     scoreChanges.add(ImportScoreChange.unchanged(subjectName, subjectScore));
                     rowUnchangedCount++;
                     unchangedSubjects.add(subjectName);
+                    if (dryRun) {
+                        scoreDeltas.add(buildScoreDelta(subjectName, "unchanged", previousScore, score));
+                    }
                     continue;
                 }
-                subjectScore.setScore(score);
-                scoreChanges.add(ImportScoreChange.updated(subjectName, previousScore, subjectScore));
+                // 试算模式不修改受管实体，用副本承载新分数，避免只读事务外的脏数据刷库
+                SubjectScoreRAIN target = dryRun ? copyScoreForPreview(subjectScore) : subjectScore;
+                target.setScore(score);
+                scoreChanges.add(ImportScoreChange.updated(subjectName, previousScore, target));
                 rowUpdatedCount++;
                 updatedSubjects.add(subjectName);
+                if (dryRun) {
+                    scoreDeltas.add(buildScoreDelta(subjectName, "updated", previousScore, score));
+                }
+                subjectScore = target;
             } else {
                 subjectScore = new SubjectScoreRAIN();
                 subjectScore.setStudentId(student.getId());
@@ -636,6 +740,9 @@ public class SubjectScoreImportService {
                 scoreChanges.add(ImportScoreChange.created(subjectName, subjectScore));
                 rowCreatedCount++;
                 createdSubjects.add(subjectName);
+                if (dryRun) {
+                    scoreDeltas.add(buildScoreDelta(subjectName, "created", null, score));
+                }
             }
 
             subjectScore.setStudentId(student.getId());
@@ -643,7 +750,7 @@ public class SubjectScoreImportService {
             existingScores.put(scoreKey, subjectScore);
         }
 
-        importDetails.add(buildImportDetail(
+        Map<String, Object> detail = buildImportDetail(
                 rowNumber,
                 studentNo,
                 studentName,
@@ -654,7 +761,13 @@ public class SubjectScoreImportService {
                 rowCreatedCount + rowUpdatedCount > 0
                         ? String.format("新增 %d 门，更新 %d 门，未变更 %d 门", rowCreatedCount, rowUpdatedCount, rowUnchangedCount)
                         : String.format("未变更 %d 门", rowUnchangedCount)
-        ));
+        );
+        if (dryRun) {
+            detail.put("newStudent", rowNewStudent);
+            detail.put("newUser", rowNewUser);
+            detail.put("scoreDeltas", scoreDeltas);
+        }
+        importDetails.add(detail);
     }
 
     @Transactional
@@ -998,6 +1111,76 @@ public class SubjectScoreImportService {
 
     private int calculateSuccessRowCount(FileParseHelper.ParsedFileData fileData, List<String> errors) {
         return Math.max(fileData.getRows().size() - errors.size(), 0);
+    }
+
+    /** 试算模式：查学生，不存在时在内存用负数 id 模拟新建（不落库）。 */
+    private Student resolveStudentForPreview(String studentNo, String name, String className, Long teacherId,
+            Map<String, Student> studentCache, AtomicLong fakeIdSequence) {
+        Student cached = studentCache.get(studentNo);
+        if (cached != null) {
+            return cached;
+        }
+        Student existing = studentRepository.findByStudentNo(studentNo).orElse(null);
+        if (existing != null) {
+            studentCache.put(studentNo, existing);
+            return existing;
+        }
+        Student simulated = new Student();
+        simulated.setId(fakeIdSequence.decrementAndGet());
+        simulated.setStudentNo(studentNo);
+        simulated.setName(name);
+        simulated.setClassName(className);
+        simulated.setTeacherId(teacherId);
+        studentCache.put(studentNo, simulated);
+        return simulated;
+    }
+
+    /** 试算模式：查绑定账号，不存在时在内存用负数 id 模拟新建（不落库）。 */
+    private User resolveUserForPreview(Student student, String username, Map<String, User> fakeUserCache, AtomicLong fakeIdSequence) {
+        if (student.getUserId() != null) {
+            User byStudent = userRepository.findById(student.getUserId()).orElse(null);
+            if (byStudent != null) {
+                return byStudent;
+            }
+        }
+        User cached = fakeUserCache.get(username);
+        if (cached != null) {
+            return cached;
+        }
+        User byUsername = userRepository.findByUsername(username).orElse(null);
+        if (byUsername != null) {
+            return byUsername;
+        }
+        User simulated = new User();
+        simulated.setId(fakeIdSequence.decrementAndGet());
+        simulated.setUsername(username);
+        simulated.setStudentNo(student.getStudentNo());
+        fakeUserCache.put(username, simulated);
+        return simulated;
+    }
+
+    private Map<String, Object> buildScoreDelta(String subjectName, String action, Double previousScore, Double newScore) {
+        Map<String, Object> delta = new LinkedHashMap<>();
+        delta.put("subjectName", subjectName);
+        delta.put("action", action);
+        delta.put("previousScore", previousScore);
+        delta.put("newScore", newScore);
+        return delta;
+    }
+
+    private SubjectScoreRAIN copyScoreForPreview(SubjectScoreRAIN source) {
+        SubjectScoreRAIN copy = new SubjectScoreRAIN();
+        copy.setId(source.getId());
+        copy.setStudentId(source.getStudentId());
+        copy.setUserId(source.getUserId());
+        copy.setSubjectId(source.getSubjectId());
+        copy.setSemester(source.getSemester());
+        copy.setScore(source.getScore());
+        return copy;
+    }
+
+    private long countFlaggedDetails(List<Map<String, Object>> importDetails, String flag) {
+        return importDetails.stream().filter(detail -> Boolean.TRUE.equals(detail.get(flag))).count();
     }
 
     private Map<String, Object> buildImportDetail(

@@ -3,6 +3,7 @@ import { Avatar, Card, Spin, Table, Tag, message } from 'antd';
 import StudentLayout from '../../components/StudentLayout';
 import CompositeScoreCategoryCard from '../../components/composite-score/CompositeScoreCategoryCard';
 import CompositeScoreDetailDrawer from '../../components/composite-score/CompositeScoreDetailDrawer';
+import ScoreSimulatorPanel from '../../components/composite-score/ScoreSimulatorPanel';
 import {
   getStudentCompositeBaseScoreDetails,
   getStudentCompositeExtraScoreDetails,
@@ -857,6 +858,12 @@ function StudentScores() {
               >
                 年级榜单
               </button>
+              <button
+                className={`scores-tab ${activeTab === 'simulate' ? 'active' : ''}`}
+                onClick={() => setActiveTab('simulate')}
+              >
+                成绩模拟
+              </button>
             </div>
 
             {/* 总览 */}
@@ -1034,6 +1041,11 @@ function StudentScores() {
                   />
                 </div>
               </Card>
+            )}
+
+            {/* 成绩模拟 */}
+            {activeTab === 'simulate' && (
+              <ScoreSimulatorPanel academicYear={selectedSemester} />
             )}
 
             {activeTab === 'gradeLeaderboard' && (

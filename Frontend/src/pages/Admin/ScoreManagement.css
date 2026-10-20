@@ -1177,3 +1177,134 @@
     text-align: left;
   }
 }
+
+/* 导入前数据预览（试算校验） */
+.validation-panel .panel-title {
+  margin-bottom: 12px;
+}
+
+.validation-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+}
+
+.validation-summary .ok {
+  color: #166534;
+  font-weight: 600;
+}
+
+.validation-summary .err {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.validation-errors {
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.validation-errors strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.validation-errors p {
+  margin: 0;
+}
+
+.validation-table {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.validation-row {
+  display: grid;
+  grid-template-columns: 64px 150px 100px 140px 150px minmax(200px, 1fr);
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #334155;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.validation-row:last-child {
+  border-bottom: none;
+}
+
+.validation-row.header {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.validation-row.failed {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.validation-row.success .validation-message-cell {
+  color: #166534;
+}
+
+.validation-message-cell {
+  word-break: break-all;
+}
+
+.validation-body {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.secondary-btn.active {
+  border-color: #2563eb;
+  color: #2563eb;
+  background: #eff6ff;
+}
+
+.secondary-btn.danger {
+  border-color: #fca5a5;
+  color: #b91c1c;
+  background: #fff;
+}
+
+.secondary-btn.danger:hover:not(:disabled) {
+  background: #fef2f2;
+}
+
+.import-result-detail {
+  margin-top: 12px;
+}
+
+.import-undo-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.import-undo-actions small {
+  color: #64748b;
+}
+
+@media (max-width: 760px) {
+  .validation-row {
+    grid-template-columns: 48px 1fr 1fr;
+    row-gap: 4px;
+  }
+}

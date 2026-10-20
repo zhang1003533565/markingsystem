@@ -71,6 +71,12 @@ export const batchApproveExtraScoreApplications = (applicationIds) => request({
   data: { applicationIds }
 });
 
+export const batchReturnExtraScoreApplications = (data) => request({
+  url: '/extra-score-review/batch/return',
+  method: 'post',
+  data
+});
+
 export const downloadExtraScoreTeacherImportTemplate = (params) => request({
   url: '/extra-score-review/teacher-import/template',
   method: 'get',

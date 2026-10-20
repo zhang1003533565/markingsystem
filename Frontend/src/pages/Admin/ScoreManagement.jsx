@@ -2,13 +2,14 @@
 import './ScoreManagement.css';
 import { getClassOptions } from '../../api/admin/class';
 import { getActiveAcademicYearList, getCurrentAcademicYear } from '../../api/admin/academicYear';
-import { importRainSubjectScores, previewRainSubjectScores } from '../../api/admin/score';
+import { importRainSubjectScores, previewRainSubjectScores, undoSubjectScoreImportBatch, validateRainSubjectScoreImport } from '../../api/admin/score';
 import AppIcon from '../../components/AppIcon';
 
 const scoreImportSteps = [
   { key: 'upload', title: '上传文件与字段识别', description: '解析表头与科目' },
   { key: 'fields', title: '基础字段配置', description: '确认学年与学生字段' },
   { key: 'mapping', title: '科目与班级映射', description: '选择科目并映射班级' },
+  { key: 'preview', title: '数据预览', description: '试算校验与错误定位' },
   { key: 'confirm', title: '校验并导入', description: '检查后写入系统' }
 ];
 
@@ -35,6 +36,11 @@ function ScoreManagement() {
   const [isDragging, setIsDragging] = useState(false);
   const [isImportModalVisible, setIsImportModalVisible] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [validationResult, setValidationResult] = useState(null);
+  const [validating, setValidating] = useState(false);
+  const [previewErrorOnly, setPreviewErrorOnly] = useState(false);
+  const [lastImportResult, setLastImportResult] = useState(null);
+  const [undoing, setUndoing] = useState(false);
   const progressTimerRef = useRef(null);
   const configPanelRef = useRef(null);
   const subjectPanelRef = useRef(null);
@@ -63,7 +69,8 @@ function ScoreManagement() {
     if (stepIndex === 0) return true;
     if (stepIndex === 1) return isPreviewVisible;
     if (stepIndex === 2) return isFieldConfigReady;
-    return isImportReady;
+    if (stepIndex === 3) return isImportReady;
+    return isImportReady && Boolean(validationResult);
   };
 
   const goToStep = (stepIndex) => {
@@ -93,6 +100,8 @@ function ScoreManagement() {
     setClassMappings([]);
     setClassMappingError('');
     setIsPreviewVisible(false);
+    setValidationResult(null);
+    setPreviewErrorOnly(false);
   };
 
   const startProgress = (startValue = 8) => {
@@ -152,6 +161,12 @@ function ScoreManagement() {
       if (progressTimerRef.current) clearInterval(progressTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    // 导入配置变化后，旧试算结果失效，需重新试算
+    setValidationResult(null);
+    setPreviewErrorOnly(false);
+  }, [selectedSemester, accountColumn, passwordColumn, nameColumn, classColumn, classMappings, selectedPreviewSubjects]);
 
   useEffect(() => {
     if (!classColumn) {
@@ -338,33 +353,104 @@ function ScoreManagement() {
     )));
   };
 
-  const handleImport = async () => {
-    if (selectedPreviewSubjects.length === 0) {
-      alert('请先选择要导入的科目');
-      return;
-    }
-    if (!selectedSemester) {
-      alert('请选择学年');
-      return;
-    }
-    if (!classColumn) {
-      alert('请选择班级字段');
-      return;
-    }
+  const buildImportFormData = () => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('fileType', file.name.endsWith('.csv') ? 'csv' : 'excel');
+    formData.append('semester', selectedSemester);
+    formData.append('accountColumn', accountColumn);
+    formData.append('passwordColumn', passwordColumn);
+    formData.append('nameColumn', nameColumn);
+    formData.append('classColumn', classColumn);
+    selectedPreviewSubjects.forEach((subject) => formData.append('subjects', subject));
+    classMappings.forEach((mapping) => {
+      formData.append('classValues', mapping.classValue);
+      formData.append('classNames', mapping.systemClassName);
+    });
+    return formData;
+  };
+
+  const validateImportConfig = () => {
+    if (!file) { alert('请先上传成绩文件'); return false; }
+    if (selectedPreviewSubjects.length === 0) { alert('请先选择要导入的科目'); return false; }
+    if (!selectedSemester) { alert('请选择学年'); return false; }
+    if (!classColumn) { alert('请选择班级字段'); return false; }
     if (classMappings.length === 0 || classMappings.some((item) => !item.classValue || !item.systemClassName)) {
       alert('请先为每个班级值选择系统班级');
-      return;
+      return false;
     }
     if (duplicateMappedClasses.length) {
       const duplicateText = duplicateMappedClasses.join('、');
       setClassMappingError(`系统班级“${duplicateText}”存在重复映射，请调整后再导入。`);
       alert(`系统班级“${duplicateText}”存在重复映射，请调整后再导入。`);
-      return;
+      return false;
     }
     if (!accountColumn || !passwordColumn || !nameColumn) {
       alert('请先明确选择账号、初始密码和姓名对应列');
+      return false;
+    }
+    return true;
+  };
+
+  // 试算校验：调用后端 dry-run 接口，不写库，用于导入前数据预览与错误行定位
+  const runValidation = async () => {
+    if (!validateImportConfig()) return;
+    setValidating(true);
+    try {
+      const data = await validateRainSubjectScoreImport(buildImportFormData());
+      if (data.errorMessage) {
+        alert(data.errorMessage);
+        return;
+      }
+      setValidationResult(data);
+      setPreviewErrorOnly(false);
+      setCurrentStep(3);
+    } catch (error) {
+      console.error('试算校验失败:', error);
+      const errorData = error?.response?.data || {};
+      alert(`试算校验失败：${errorData.errorMessage || errorData.message || error.message}`);
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const handleUndoLastImport = async () => {
+    const batchId = lastImportResult?.importBatchId;
+    if (!batchId || undoing) return;
+    if (!window.confirm('确定撤销本次导入吗？将删除本批次新增的成绩/学生/账号/科目，并恢复被修改分数的原始值。')) {
       return;
     }
+    setUndoing(true);
+    try {
+      const data = await undoSubjectScoreImportBatch(batchId);
+      const undoInfo = data?.undoImportInfo || {};
+      setLastImportResult(null);
+      setOperationFeedback({
+        type: 'success',
+        title: '已撤销本次导入',
+        lines: [
+          `删除新增成绩 ${undoInfo.deletedCreatedScoreCount || 0} 条`,
+          `恢复已更新成绩 ${undoInfo.restoredUpdatedScoreCount || 0} 条`,
+          `删除新增账号 ${undoInfo.deletedCreatedUserCount || 0} 个`,
+          `删除新增学生 ${undoInfo.deletedCreatedStudentCount || 0} 个`,
+          `删除新增科目 ${undoInfo.deletedCreatedSubjectCount || 0} 个`
+        ]
+      });
+    } catch (error) {
+      console.error('撤销导入失败:', error);
+      const errorData = error?.response?.data || {};
+      setOperationFeedback({
+        type: 'error',
+        title: '撤销失败',
+        lines: [`撤销失败：${errorData.errorMessage || errorData.message || error.message}`]
+      });
+    } finally {
+      setUndoing(false);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!validateImportConfig()) return;
 
     setLoading(true);
     setOperationFeedback({
@@ -373,44 +459,37 @@ function ScoreManagement() {
       lines: ['正在上传文件并处理成绩，请稍候。']
     });
     setIsImportModalVisible(true);
+    setLastImportResult(null);
     startProgress();
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('fileType', file.name.endsWith('.csv') ? 'csv' : 'excel');
-      formData.append('semester', selectedSemester);
+      const formData = buildImportFormData();
       formData.append('confirm', true);
-      formData.append('accountColumn', accountColumn);
-      formData.append('passwordColumn', passwordColumn);
-      formData.append('nameColumn', nameColumn);
-      formData.append('classColumn', classColumn);
-      selectedPreviewSubjects.forEach((subject) => formData.append('subjects', subject));
-      classMappings.forEach((mapping) => {
-        formData.append('classValues', mapping.classValue);
-        formData.append('classNames', mapping.systemClassName);
-      });
 
       const data = await importRainSubjectScores(formData);
       closePreviewPanel();
       resetPreviewConfig();
+
+      const info = data.scoreImportInfo || null;
+      if (info?.importBatchId) {
+        setLastImportResult({ ...info, undone: false });
+      }
 
       const lines = [];
       if (data.newSubjects?.length) {
         lines.push(`成功识别 ${data.newSubjects.length} 个新科目`);
         lines.push(`新增科目：${data.newSubjects.join('、')}`);
       }
-      if (data.scoreImportInfo) {
-        lines.push(`成绩导入：新增 ${data.scoreImportInfo.createdScoreCount || 0} 条，更新 ${data.scoreImportInfo.updatedScoreCount || 0} 条，未变更 ${data.scoreImportInfo.unchangedScoreCount || 0} 条`);
-        lines.push(`本次新增：账号 ${data.scoreImportInfo.createdUserCount || 0} 个，学生 ${data.scoreImportInfo.createdStudentCount || 0} 个，科目 ${data.scoreImportInfo.createdSubjectCount || 0} 个`);
-        if (data.scoreImportInfo.scoreErrors?.length) {
-          lines.push(`失败 ${data.scoreImportInfo.scoreErrors.length} 条`);
-          lines.push(...data.scoreImportInfo.scoreErrors.slice(0, 5));
+      if (info) {
+        lines.push(`成绩导入：新增 ${info.createdScoreCount || 0} 条，更新 ${info.updatedScoreCount || 0} 条，未变更 ${info.unchangedScoreCount || 0} 条`);
+        lines.push(`本次新增：账号 ${info.createdUserCount || 0} 个，学生 ${info.createdStudentCount || 0} 个，科目 ${info.createdSubjectCount || 0} 个`);
+        if (info.scoreErrors?.length) {
+          lines.push(`失败 ${info.scoreErrors.length} 条，完整清单见下方错误行列表`);
         }
       }
       setOperationFeedback({
         type: 'success',
-        title: '配置完成，准备导入',
+        title: info?.errorCount ? `导入完成（${info.errorCount} 行失败）` : '导入完成',
         lines: lines.length ? lines : [data.errorMessage || '导入完成']
       });
     } catch (error) {
@@ -625,7 +704,9 @@ function ScoreManagement() {
         <div className="step-actions">
           <button type="button" className="secondary-btn" onClick={() => setClassMappings((classValuesByHeader[classColumn] || []).map((value) => ({ classValue: value, systemClassName: '' })))}>重置映射</button>
           <button type="button" className="secondary-btn" onClick={() => setCurrentStep(1)}>上一步</button>
-          <button type="button" className="primary-btn" onClick={() => setCurrentStep(3)} disabled={!isImportReady}>下一步：校验并导入</button>
+          <button type="button" className="primary-btn" onClick={runValidation} disabled={!isImportReady || validating}>
+            {validating ? '试算中...' : '下一步：数据预览'}
+          </button>
         </div>
       </article>
 
@@ -660,6 +741,96 @@ function ScoreManagement() {
     </section>
   );
 
+  const validationInfo = validationResult?.scoreImportInfo || null;
+  const validationDetails = validationInfo?.importDetails || [];
+  const validationErrors = validationInfo?.scoreErrors || [];
+  const visibleDetails = previewErrorOnly
+    ? validationDetails.filter((item) => item.status === 'failed')
+    : validationDetails;
+
+  const renderValidationStatusLabel = (item) => {
+    if (item.status === 'failed') return '失败';
+    const tags = [];
+    if (item.newStudent) tags.push('新学生');
+    if (item.newUser) tags.push('新账号');
+    const base = item.status === 'unchanged' ? '未变更' : '将写入';
+    return tags.length ? `${base}（${tags.join('，')}）` : base;
+  };
+
+  const renderValidationDetailMessage = (item) => {
+    if (item.status === 'failed') return item.message || '';
+    const deltas = Array.isArray(item.scoreDeltas) ? item.scoreDeltas : [];
+    const changed = deltas.filter((delta) => delta.action !== 'unchanged');
+    if (!changed.length) return `未变更 ${deltas.length || 0} 门`;
+    return changed.map((delta) => (
+      delta.action === 'created'
+        ? `${delta.subjectName} 新增 ${delta.newScore} 分`
+        : `${delta.subjectName} ${delta.previousScore} → ${delta.newScore} 分`
+    )).join('；');
+  };
+
+  const renderPreviewStep = () => (
+    <section className="score-panel validation-panel">
+      <div className="panel-title with-actions">
+        <span>数据预览（试算校验，未写入系统）</span>
+        <div className="tiny-actions">
+          <button type="button" className="secondary-btn small" onClick={runValidation} disabled={validating || !file}>
+            {validating ? '试算中...' : '重新试算'}
+          </button>
+          <button type="button" className={`secondary-btn small ${previewErrorOnly ? 'active' : ''}`} onClick={() => setPreviewErrorOnly((prev) => !prev)}>
+            {previewErrorOnly ? '查看全部行' : '仅看错误行'}
+          </button>
+        </div>
+      </div>
+      {!validationInfo ? (
+        <div className="empty-inline">暂无试算结果，请回到「科目与班级映射」步骤点击「下一步：数据预览」。</div>
+      ) : (
+        <>
+          <div className="validation-summary">
+            <span>共 {validationInfo.totalRowCount || 0} 行</span>
+            <span className="ok">将写入 {((validationInfo.createdScoreCount || 0) + (validationInfo.updatedScoreCount || 0))} 条成绩（新增 {validationInfo.createdScoreCount || 0}，更新 {validationInfo.updatedScoreCount || 0}）</span>
+            <span>未变更 {validationInfo.unchangedScoreCount || 0} 条</span>
+            <span>新建：账号 {validationInfo.createdUserCount || 0} 个，学生 {validationInfo.createdStudentCount || 0} 个，科目 {validationInfo.createdSubjectCount || 0} 个</span>
+            <span className={validationInfo.errorCount ? 'err' : ''}>错误 {validationInfo.errorCount || 0} 行</span>
+          </div>
+          {validationResult?.newSubjects?.length ? (
+            <div className="config-hint">将新增科目：{validationResult.newSubjects.join('、')}</div>
+          ) : null}
+          {validationErrors.length ? (
+            <div className="validation-errors">
+              <strong>错误行定位（{validationErrors.length} 条）：</strong>
+              {validationErrors.map((line, index) => <p key={`validation-err-${index}`}>{line}</p>)}
+            </div>
+          ) : null}
+          <div className="validation-table">
+            <div className="validation-row header">
+              <span>行号</span><span>学号</span><span>姓名</span><span>班级</span><span>状态</span><span>说明</span>
+            </div>
+            <div className="validation-body">
+              {visibleDetails.map((item, index) => (
+                <div className={`validation-row ${item.status}`} key={`validation-detail-${item.rowNumber}-${index}`}>
+                  <span>{item.rowNumber}</span>
+                  <span>{item.studentNo || '-'}</span>
+                  <span>{item.studentName || '-'}</span>
+                  <span>{item.className || '-'}</span>
+                  <span>{renderValidationStatusLabel(item)}</span>
+                  <span className="validation-message-cell">{renderValidationDetailMessage(item)}</span>
+                </div>
+              ))}
+              {!visibleDetails.length ? <div className="empty-inline">没有符合条件的行</div> : null}
+            </div>
+          </div>
+          <div className="step-actions">
+            <button type="button" className="secondary-btn" onClick={() => setCurrentStep(2)}>上一步</button>
+            <button type="button" className="primary-btn" onClick={() => setCurrentStep(4)}>
+              {validationErrors.length ? `忽略 ${validationErrors.length} 个错误行，继续导入` : '确认无误，去导入'}
+            </button>
+          </div>
+        </>
+      )}
+    </section>
+  );
+
   const renderConfirmStep = () => (
     <section className="score-panel">
       <div className="panel-title">校验并导入</div>
@@ -669,10 +840,11 @@ function ScoreManagement() {
         <div><span>学生字段</span><strong>{accountColumn || '-'} / {nameColumn || '-'}</strong></div>
         <div><span>班级映射</span><strong>{mappedClassCount} / {classMappings.length} 个</strong></div>
         <div><span>导入科目</span><strong>{selectedPreviewSubjects.length} 个</strong></div>
+        <div><span>试算结果</span><strong>{validationInfo ? `将写入 ${(validationInfo.createdScoreCount || 0) + (validationInfo.updatedScoreCount || 0)} 条，错误 ${validationInfo.errorCount || 0} 行` : '未试算'}</strong></div>
       </div>
       <div className="step-actions">
-        <button type="button" className="secondary-btn" onClick={() => setCurrentStep(2)} disabled={loading}>上一步</button>
-        <button type="button" className="primary-btn" onClick={handleImport} disabled={!isImportReady || loading}>
+        <button type="button" className="secondary-btn" onClick={() => setCurrentStep(3)} disabled={loading}>上一步</button>
+        <button type="button" className="primary-btn" onClick={handleImport} disabled={!isImportReady || !validationResult || loading}>
           {loading ? '导入中...' : '确认导入'}
         </button>
       </div>
@@ -683,6 +855,7 @@ function ScoreManagement() {
     if (currentStep === 0) return renderUploadStep();
     if (currentStep === 1) return renderFieldStep();
     if (currentStep === 2) return renderMappingStep();
+    if (currentStep === 3) return renderPreviewStep();
     return renderConfirmStep();
   };
 
@@ -717,7 +890,7 @@ function ScoreManagement() {
           </div>
           <div className="score-alert-actions">
             <button type="button" className="secondary-btn" onClick={() => setCurrentStep(1)}>字段配置</button>
-            <button type="button" className="primary-btn" onClick={() => setCurrentStep(3)} disabled={!isImportReady}>校验导入</button>
+            <button type="button" className="primary-btn" onClick={runValidation} disabled={!isImportReady || validating}>{validating ? '试算中...' : '数据预览'}</button>
           </div>
         </div>
       )}
@@ -758,6 +931,24 @@ function ScoreManagement() {
             {operationFeedback?.lines?.length ? (
               <div className={`feedback-card ${operationFeedback.type || 'info'}`}>
                 {operationFeedback.lines.map((line, index) => <p key={`${operationFeedback.title}-${index}`}>{line}</p>)}
+              </div>
+            ) : null}
+            {lastImportResult && !loading ? (
+              <div className="import-result-detail">
+                {lastImportResult.scoreErrors?.length ? (
+                  <div className="validation-errors">
+                    <strong>错误行清单（{lastImportResult.scoreErrors.length} 条）：</strong>
+                    {lastImportResult.scoreErrors.map((line, index) => <p key={`import-err-${index}`}>{line}</p>)}
+                  </div>
+                ) : null}
+                {lastImportResult.undoAvailable ? (
+                  <div className="import-undo-actions">
+                    <button type="button" className="secondary-btn danger" onClick={handleUndoLastImport} disabled={undoing}>
+                      {undoing ? '撤销中...' : '撤销本次导入'}
+                    </button>
+                    <small>撤销将删除本批次新增的成绩/学生/账号/科目，并恢复被修改分数的原始值。</small>
+                  </div>
+                ) : null}
               </div>
             ) : null}
           </div>

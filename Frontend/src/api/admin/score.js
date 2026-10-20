@@ -90,6 +90,19 @@ export const getSubjectScoreImportBatches = () => {
   });
 };
 
+// 导入前试算校验（dry-run）：不写库，返回与导入一致的变更推演结果
+export const validateRainSubjectScoreImport = (formData) => {
+  return request({
+    url: '/subjects/rain/import/validate',
+    method: 'post',
+    data: formData,
+    timeout: 120000,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+};
+
 export const getSubjectScoreImportStudentRecords = (params) => {
   return request({
     url: '/subjects/rain/import/student-records',

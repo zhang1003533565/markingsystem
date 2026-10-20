@@ -2192,6 +2192,61 @@ public class ExtraScoreApplicationService {
         return result;
     }
 
+    /**
+     * 批量驳回 / 批量退回补充材料：逐条复用单条审核状态机（权限、阶段、撤回拦截、整包结算），
+     * 不满足条件的记录跳过并返回失败原因，与 batchApproveReview 保持一致的返回结构。
+     */
+    public Map<String, Object> batchReturnReview(RequestUserContext context, ExtraScoreApplicationBatchReviewRequest request) {
+        if (!context.isClassCommittee() && !context.isTeacher()) {
+            throw new IllegalArgumentException("当前角色无权批量审核");
+        }
+        String action = normalizeReviewAction(request == null ? null : request.getAction());
+        if ("approve".equals(action)) {
+            throw new IllegalArgumentException("批量通过请使用批量通过接口");
+        }
+        String comment = defaultString(request.getComment()).trim();
+        if (comment.isBlank()) {
+            throw new IllegalArgumentException("supplement".equals(action) ? "退回补充材料请填写补充说明" : "批量驳回请填写驳回原因");
+        }
+        List<Long> ids = request.getApplicationIds() == null
+                ? List.of()
+                : request.getApplicationIds().stream()
+                    .filter(id -> id != null)
+                    .distinct()
+                    .toList();
+        if (ids.isEmpty()) {
+            throw new IllegalArgumentException("请选择要批量处理的申请");
+        }
+
+        List<Map<String, Object>> returned = new ArrayList<>();
+        List<Map<String, Object>> failed = new ArrayList<>();
+        for (Long id : ids) {
+            try {
+                ExtraScoreApplicationReviewRequest reviewRequest = new ExtraScoreApplicationReviewRequest();
+                reviewRequest.setAction(action);
+                reviewRequest.setComment(comment);
+                Map<String, Object> result = context.isClassCommittee()
+                        ? committeeReview(context, id, reviewRequest)
+                        : teacherReview(context, id, reviewRequest);
+                returned.add(result);
+            } catch (IllegalArgumentException exception) {
+                Map<String, Object> failure = new LinkedHashMap<>();
+                failure.put("id", id);
+                failure.put("message", exception.getMessage());
+                failed.add(failure);
+            }
+        }
+
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("action", action);
+        result.put("totalCount", ids.size());
+        result.put("successCount", returned.size());
+        result.put("failedCount", failed.size());
+        result.put("returned", returned);
+        result.put("failed", failed);
+        return result;
+    }
+
     @Transactional
     public Map<String, Object> forceCurrentClassToTeacherStage(RequestUserContext context) {
         if (!context.isClassCommittee()) {
@@ -2230,6 +2285,7 @@ public class ExtraScoreApplicationService {
             application.setReviewStage("teacher_pending");
             application.setStatus("pending");
             application.setReturnReason(null);
+            application.setReturnType(null);
             applicationEventService.record(
                     application,
                     "COMMITTEE_FORCED",
@@ -2435,6 +2491,7 @@ public class ExtraScoreApplicationService {
         result.put("teacherReviewerName", application.getTeacherReviewerName());
         result.put("teacherReviewedAt", application.getTeacherReviewedAt());
         result.put("returnReason", application.getReturnReason());
+        result.put("returnType", application.getReturnType());
         result.put("packageReturned", isPackageReturned(application));
         result.put("recordReviewResult", resolveRecordReviewResult(application));
         result.put("recordReviewResultLabel", resolveRecordReviewResultLabel(application));
@@ -2711,6 +2768,7 @@ public class ExtraScoreApplicationService {
         result.put("reviewStage", application.getReviewStage());
         result.put("reviewStageLabel", resolveReviewStageLabel(application.getReviewStage()));
         result.put("returnReason", application.getReturnReason());
+        result.put("returnType", application.getReturnType());
         result.put("packageReturned", isPackageReturned(application));
         result.put("recordReviewResult", resolveRecordReviewResult(application));
         result.put("recordReviewResultLabel", resolveRecordReviewResultLabel(application));
@@ -2753,6 +2811,7 @@ public class ExtraScoreApplicationService {
         result.put("reviewStage", application.getReviewStage());
         result.put("reviewStageLabel", resolveReviewStageLabel(application.getReviewStage()));
         result.put("returnReason", application.getReturnReason());
+        result.put("returnType", application.getReturnType());
         result.put("packageReturned", isPackageReturned(application));
         result.put("recordReviewResult", resolveRecordReviewResult(application));
         result.put("recordReviewResultLabel", resolveRecordReviewResultLabel(application));
@@ -2823,6 +2882,7 @@ public class ExtraScoreApplicationService {
         result.put("statusGroup", resolveHistoryStatusGroup(application, canEdit));
         result.put("reviewStageLabel", resolveReviewStageLabel(application.getReviewStage()));
         result.put("returnReason", application.getReturnReason());
+        result.put("returnType", application.getReturnType());
         result.put("submissionTypeLabel", resolveSubmissionTypeLabel(application.getSubmissionType()));
         result.put("currentRevisionNo", application.getCurrentRevisionNo());
         result.put("uploadTime", application.getCreatedAt());
@@ -2874,6 +2934,7 @@ public class ExtraScoreApplicationService {
         result.put("teacherStatusLabel", resolveReviewStatusLabel(application.getTeacherStatus()));
         result.put("teacherComment", application.getTeacherComment());
         result.put("returnReason", application.getReturnReason());
+        result.put("returnType", application.getReturnType());
         result.put("packageReturned", isPackageReturned(application));
         result.put("recordReviewResult", resolveRecordReviewResult(application));
         result.put("recordReviewResultLabel", resolveRecordReviewResultLabel(application));
@@ -3123,6 +3184,7 @@ public class ExtraScoreApplicationService {
         result.put("submissionEndTime", stageRecord.getSubmissionEndTime());
         result.put("uploadTime", stageRecord.getCreatedAt());
         result.put("returnReason", stageRecord.getReturnReason());
+        result.put("returnType", stageRecord.getReturnType());
         result.put("committeeStatus", stageRecord.getCommitteeStatus());
         result.put("committeeReviewerName", stageRecord.getCommitteeReviewerName());
         result.put("committeeReviewedAt", stageRecord.getCommitteeReviewedAt());
@@ -3815,6 +3877,7 @@ public class ExtraScoreApplicationService {
         application.setTeacherReviewerName(null);
         application.setTeacherReviewedAt(null);
         application.setReturnReason(null);
+        application.setReturnType(null);
         clearWithdrawalRequest(application);
     }
 
@@ -3832,6 +3895,7 @@ public class ExtraScoreApplicationService {
         application.setTeacherReviewerName(null);
         application.setTeacherReviewedAt(null);
         application.setReturnReason(null);
+        application.setReturnType(null);
         clearWithdrawalRequest(application);
     }
 
@@ -3913,6 +3977,7 @@ public class ExtraScoreApplicationService {
             application.setStatus("approved");
             application.setReviewStage("approved");
             application.setReturnReason(null);
+            application.setReturnType(null);
             clearWithdrawalRequest(application);
         }
         return approvedReviewRecords;
@@ -4235,7 +4300,7 @@ public class ExtraScoreApplicationService {
             throw new IllegalArgumentException("审核动作不能为空");
         }
         String normalized = action.trim().toLowerCase();
-        if (!List.of("approve", "return").contains(normalized)) {
+        if (!List.of("approve", "return", "supplement").contains(normalized)) {
             throw new IllegalArgumentException("不支持的审核动作");
         }
         return normalized;
@@ -4251,15 +4316,18 @@ public class ExtraScoreApplicationService {
             application.setReviewStage("teacher_pending");
             application.setStatus("pending");
             application.setReturnReason(null);
+            application.setReturnType(null);
             return;
         }
         if (comment.isBlank()) {
-            comment = "班委驳回，请检查该条附加分材料";
+            comment = "supplement".equals(action) ? "班委退回，请补充材料后重新提交" : "班委驳回，请检查该条附加分材料";
         }
+        boolean supplement = "supplement".equals(action);
         application.setCommitteeStatus("returned");
         application.setReviewStage("returned");
-        application.setStatus("rejected");
+        application.setStatus(supplement ? "returned" : "rejected");
         application.setReturnReason(comment);
+        application.setReturnType(supplement ? "supplement" : "reject");
     }
 
     private void applyTeacherReviewResult(ExtraScoreApplication application, RequestUserContext context, String action, String comment) {
@@ -4273,15 +4341,18 @@ public class ExtraScoreApplicationService {
             application.setReviewStage("approved");
             application.setStatus("approved");
             application.setReturnReason(null);
+            application.setReturnType(null);
             return;
         }
         if (comment.isBlank()) {
-            comment = "老师驳回，请检查该条附加分材料";
+            comment = "supplement".equals(action) ? "老师退回，请补充材料后重新提交" : "老师驳回，请检查该条附加分材料";
         }
+        boolean supplement = "supplement".equals(action);
         application.setTeacherStatus("returned");
         application.setReviewStage("returned");
-        application.setStatus("rejected");
+        application.setStatus(supplement ? "returned" : "rejected");
         application.setReturnReason(comment);
+        application.setReturnType(supplement ? "supplement" : "reject");
     }
 
     private void validateGroupScoreCapOnApprove(ExtraScoreApplication application) {
