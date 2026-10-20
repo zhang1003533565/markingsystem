@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowDownOutlined, HeartOutlined, LogoutOutlined } from './AcademicIcons';
 import { withAuthToken } from '../utils/authStorage';
 import { isAssistantPath, navigateWithViewTransition } from '../utils/viewTransition';
+import MessageCenter from './MessageCenter';
 import schoolLogo from '../assets/index/school.png';
 import './StudentPortalHeader.css';
 
@@ -187,6 +188,8 @@ function StudentPortalHeader({ activePath = '', user = {}, userRole, onLogout })
           <HeartOutlined style={{ fontSize: 15 }} />
           <span>开发者致谢</span>
         </button>
+
+        <MessageCenter />
 
         <button
           type="button"
