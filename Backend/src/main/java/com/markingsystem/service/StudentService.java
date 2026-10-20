@@ -456,12 +456,14 @@ public class StudentService {
                 .map(Student::getTeacherId)
                 .filter(java.util.Objects::nonNull)
                 .collect(Collectors.toSet());
+        // 注意: teacher_id 可能为 NULL, 不可变 Map.of().get(null) 会抛 NPE, 空表用 Collections.emptyMap() 并对 null 键短路
         Map<Long, User> teacherMap = teacherIds.isEmpty()
-                ? Map.of()
+                ? java.util.Collections.emptyMap()
                 : userRepository.findAllById(teacherIds).stream()
                         .collect(Collectors.toMap(User::getId, user -> user, (left, right) -> left));
         List<Map<String, Object>> rows = students.getContent().stream()
-                .map(student -> toStudentListRow(student, teacherMap.get(student.getTeacherId())))
+                .map(student -> toStudentListRow(student,
+                        student.getTeacherId() == null ? null : teacherMap.get(student.getTeacherId())))
                 .toList();
         return new PageImpl<>(rows, pageable, students.getTotalElements());
     }
