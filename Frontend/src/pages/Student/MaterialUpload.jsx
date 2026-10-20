@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card, Upload, Input, Button, Table, Tag, Space, Alert, message, Divider, Tooltip, Descriptions, Badge } from 'antd';
 import { UploadOutlined, SafetyCertificateOutlined, SearchOutlined, FileOutlined, CheckCircleOutlined, WarningOutlined, ReloadOutlined, EyeOutlined } from '@ant-design/icons';
-</parameter>
+
 import request from '../../utils/request';
 import './MaterialUpload.css';
 
