@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import NewMessageNotification from './NewMessageNotification';
+import MessageCenter from './MessageCenter';
 import './TopBar.css';
 
 function TopBar({ breadcrumb, user, onLogout }) {
@@ -25,7 +25,7 @@ function TopBar({ breadcrumb, user, onLogout }) {
         </div>
         <span className="welcome">欢迎，{user?.username || '用户'}</span>
         <div className="notification-area">
-          <NewMessageNotification />
+          <MessageCenter />
         </div>
         <button className="logout-btn" onClick={onLogout}>退出登录</button>
       </div>

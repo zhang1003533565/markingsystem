@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdminBreadcrumbs } from './adminNavigation.jsx';
 import { withAuthToken } from '../utils/authStorage';
+import MessageCenter from './MessageCenter';
 import topbarBackground from '../assets/index/topback.png';
 import './AdminTopbar.css';
 
@@ -33,6 +34,7 @@ function AdminTopbar({ pathname, user = {}, onLogout }) {
       </div>
 
       <div className="admin-topbar-actions">
+        <MessageCenter />
         <button
           type="button"
           className="admin-topbar-user"

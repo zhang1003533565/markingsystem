@@ -89,6 +89,7 @@ public class ExtraScoreApplicationService {
     private final ProofFileStorageService proofFileStorageService;
     private final ExtraScoreEffectiveScoreService effectiveScoreService;
     private final ExtraScoreApplicationEventService applicationEventService;
+    private final SystemMessageService systemMessageService;
 
     private record TeacherImportCategory(
             ExtraScoreTemplate template,
@@ -118,7 +119,8 @@ public class ExtraScoreApplicationService {
             ExtraScoreSubmissionWindowService extraScoreSubmissionWindowService,
             ProofFileStorageService proofFileStorageService,
             ExtraScoreEffectiveScoreService effectiveScoreService,
-            ExtraScoreApplicationEventService applicationEventService
+            ExtraScoreApplicationEventService applicationEventService,
+            SystemMessageService systemMessageService
     ) {
         this.applicationRepository = applicationRepository;
         this.groupRepository = groupRepository;
@@ -135,6 +137,7 @@ public class ExtraScoreApplicationService {
         this.proofFileStorageService = proofFileStorageService;
         this.effectiveScoreService = effectiveScoreService;
         this.applicationEventService = applicationEventService;
+        this.systemMessageService = systemMessageService;
     }
 
     public Map<String, Object> listMyApplications(RequestUserContext context, String scoreType, int page, int size) {
@@ -487,6 +490,7 @@ public class ExtraScoreApplicationService {
         List<ExtraScoreApplication> updatedApplications = new ArrayList<>(drafts);
         updatedApplications.addAll(approvedReviewRecords);
         applicationRepository.saveAll(updatedApplications);
+        notifyTeacherPendingTodo(drafts, student);
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("submittedCount", drafts.size());
         result.put("applications", drafts.stream().map(this::toMap).toList());
@@ -529,6 +533,7 @@ public class ExtraScoreApplicationService {
         List<ExtraScoreApplication> updatedApplications = new ArrayList<>(drafts);
         updatedApplications.addAll(approvedReviewRecords);
         applicationRepository.saveAll(updatedApplications);
+        notifyTeacherPendingTodo(drafts, student);
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("submittedCount", drafts.size());
         result.put("applications", drafts.stream().map(this::toStudentListMap).toList());
@@ -2023,6 +2028,9 @@ public class ExtraScoreApplicationService {
                 saved.getReturnReason() == null ? comment : saved.getReturnReason(),
                 false
         );
+        if (!"approve".equals(action)) {
+            notifyStudentReviewResult(saved, false);
+        }
         settleRejectedPackageIfReady(saved);
         return toReviewMap(applicationRepository.findById(id).orElse(saved), context);
     }
@@ -2143,6 +2151,7 @@ public class ExtraScoreApplicationService {
                 saved.getReturnReason() == null ? comment : saved.getReturnReason(),
                 false
         );
+        notifyStudentReviewResult(saved, "approve".equals(action));
         settleRejectedPackageIfReady(saved);
         return toReviewMap(applicationRepository.findById(id).orElse(saved), context);
     }
@@ -3825,6 +3834,41 @@ public class ExtraScoreApplicationService {
             student = studentRepository.findByUserId(context.getUserId());
         }
         return student.orElseThrow(() -> new IllegalArgumentException("当前学生信息不存在"));
+    }
+
+    private void notifyStudentReviewResult(ExtraScoreApplication application, boolean approved) {
+        Long studentUserId = resolveStudentUserId(application.getStudentNo());
+        String itemName = defaultString(application.getItemName());
+        if (approved) {
+            systemMessageService.push(studentUserId, "STUDENT", SystemMessageService.TYPE_REVIEW_RESULT,
+                    "附加分审核通过：" + itemName,
+                    "你的附加分申请「" + itemName + "」已审核通过。",
+                    "/student/extra/result");
+        } else {
+            systemMessageService.push(studentUserId, "STUDENT", SystemMessageService.TYPE_REVIEW_RESULT,
+                    "附加分申请被退回：" + itemName,
+                    "你的附加分申请「" + itemName + "」被退回：" + defaultString(application.getReturnReason()),
+                    "/student/extra/result");
+        }
+    }
+
+    private void notifyTeacherPendingTodo(List<ExtraScoreApplication> applications, Student student) {
+        if (applications == null || applications.isEmpty()) {
+            return;
+        }
+        Long teacherUserId = applications.get(0).getTeacherId();
+        String studentName = student != null ? student.getName() : defaultString(applications.get(0).getStudentName());
+        systemMessageService.push(teacherUserId, "TEACHER", SystemMessageService.TYPE_TODO,
+                "待审核：学生提交了附加分申请",
+                "「" + studentName + "」提交了 " + applications.size() + " 条附加分申请，请及时审核。",
+                "/admin/extra-score-review");
+    }
+
+    private Long resolveStudentUserId(String studentNo) {
+        if (studentNo == null || studentNo.isBlank()) {
+            return null;
+        }
+        return studentRepository.findByStudentNo(studentNo).map(Student::getUserId).orElse(null);
     }
 
     private String normalizeScoreType(String scoreType) {

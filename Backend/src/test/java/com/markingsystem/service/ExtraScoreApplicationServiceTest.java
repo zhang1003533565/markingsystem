@@ -17,6 +17,7 @@ import com.markingsystem.repository.ExtraScoreTemplateItemLevelRuleRepository;
 import com.markingsystem.repository.ExtraScoreTemplateItemRepository;
 import com.markingsystem.repository.RoleRepository;
 import com.markingsystem.repository.StudentRepository;
+import com.markingsystem.repository.SystemMessageRepository;
 import com.markingsystem.repository.UserRepository;
 import com.markingsystem.util.RequestUserContext;
 import org.junit.jupiter.api.Test;
@@ -554,6 +555,12 @@ class ExtraScoreApplicationServiceTest {
                                 )
                         ),
                         new ObjectMapper()
+                ),
+                new SystemMessageService(
+                        proxy(
+                                SystemMessageRepository.class,
+                                Map.of("save", (MethodHandler) args -> args[0])
+                        )
                 )
         );
     }

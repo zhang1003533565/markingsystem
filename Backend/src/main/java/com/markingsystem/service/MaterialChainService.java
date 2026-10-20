@@ -3,8 +3,10 @@ package com.markingsystem.service;
 import com.markingsystem.dto.MaterialChainUploadRequest;
 import com.markingsystem.entity.MaterialChainEvent;
 import com.markingsystem.entity.MaterialChainFile;
+import com.markingsystem.entity.Student;
 import com.markingsystem.repository.MaterialChainEventRepository;
 import com.markingsystem.repository.MaterialChainFileRepository;
+import com.markingsystem.repository.StudentRepository;
 import com.markingsystem.util.RequestUserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,15 +31,21 @@ public class MaterialChainService {
     private final MaterialChainFileRepository chainFileRepository;
     private final MaterialChainEventRepository chainEventRepository;
     private final ProofFileStorageService proofFileStorageService;
+    private final StudentRepository studentRepository;
+    private final SystemMessageService systemMessageService;
 
     public MaterialChainService(
             MaterialChainFileRepository chainFileRepository,
             MaterialChainEventRepository chainEventRepository,
-            ProofFileStorageService proofFileStorageService
+            ProofFileStorageService proofFileStorageService,
+            StudentRepository studentRepository,
+            SystemMessageService systemMessageService
     ) {
         this.chainFileRepository = chainFileRepository;
         this.chainEventRepository = chainEventRepository;
         this.proofFileStorageService = proofFileStorageService;
+        this.studentRepository = studentRepository;
+        this.systemMessageService = systemMessageService;
     }
 
     @Transactional
@@ -101,6 +109,7 @@ public class MaterialChainService {
         chainFile = chainFileRepository.save(chainFile);
 
         recordEvent(chainFile, "UPLOAD", null, "SUBMITTED", ctx, "学生初次提交证明材料", hash);
+        notifyTeacherOfRisk(chainFile);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("chainCode", chainFile.getChainCode());
@@ -178,6 +187,7 @@ public class MaterialChainService {
 
         recordEvent(chainFile, "MODIFY", prevStage, "MODIFIED", ctx, "学生修改材料（第 " + nextRev + " 版）",
                 hash != null ? hash : chainFile.getFileHash());
+        notifyTeacherOfRisk(chainFile);
 
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("id", chainFile.getId());
@@ -360,6 +370,36 @@ public class MaterialChainService {
         event.setFileHashSnapshot(fileHashSnapshot);
         event.setOccurredAt(LocalDateTime.now());
         chainEventRepository.save(event);
+    }
+
+    private void notifyTeacherOfRisk(MaterialChainFile chainFile) {
+        String tamperRisk = chainFile.getTamperRisk() == null ? "" : chainFile.getTamperRisk().trim();
+        boolean duplicate = "DUPLICATE".equalsIgnoreCase(chainFile.getCertDuplicateRisk());
+        boolean highRisk = !tamperRisk.isBlank() && !"LOW".equalsIgnoreCase(tamperRisk);
+        if (!highRisk && !duplicate) {
+            return;
+        }
+        Long teacherUserId = studentRepository.findByStudentNo(chainFile.getStudentNo())
+                .map(Student::getTeacherId)
+                .orElse(null);
+        if (teacherUserId == null) {
+            return;
+        }
+        StringBuilder detail = new StringBuilder();
+        if (highRisk) {
+            detail.append("图片篡改风险：").append(tamperRisk);
+        }
+        if (duplicate) {
+            if (detail.length() > 0) {
+                detail.append("；");
+            }
+            detail.append("证书编号重复提交");
+        }
+        String fileName = chainFile.getFileName() == null ? "证明材料" : chainFile.getFileName();
+        systemMessageService.push(teacherUserId, "TEACHER", SystemMessageService.TYPE_WARNING,
+                "材料预警：" + fileName,
+                "学生 " + chainFile.getStudentNo() + " 的证明材料「" + fileName + "」触发预警：" + detail,
+                "/admin/material-trace/" + chainFile.getChainCode());
     }
 
     private Map<String, Object> toMap(MaterialChainFile f) {
